@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to="GetraenkeautomatGUI">
+  <!-- Inherit our applications main module.                      -->
+  <inherits name='de.rtcustomz.getraenkeautomat.GetraenkeautomatGUI' />
+
+  <!-- Specify the path to any remote services.                   -->
+  <servlet path="/GetraenkeautomatGUI/greet" class="de.rtcustomz.getraenkeautomat.server.GreetingServiceImpl" />
+
+</module>
