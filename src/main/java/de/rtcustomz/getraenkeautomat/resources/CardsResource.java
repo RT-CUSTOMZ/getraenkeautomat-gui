@@ -12,8 +12,6 @@ import javax.ws.rs.core.UriInfo;
 
 import de.rtcustomz.getraenkeautomat.model.Card;
 
-//import de.rtcustomz.getraenkeautomat.model.Card;
-
 @Path("cards")
 public class CardsResource {
 	@Context
