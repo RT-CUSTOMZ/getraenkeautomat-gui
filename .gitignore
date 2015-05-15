@@ -1,19 +1,21 @@
 *.class
+*.properties
+*.MF
 
 # Package Files #
 *.jar
 *.war
 
 # gwt caches and compiled units #
-war/gwt_bree/
-gwt-unitCache/
+src/main/webapp/gwt_bree/
+src/main/gwt-unitCache/
 
 # boilerplate generated classes #
 .apt_generated/
 
 # more caches and things from deploy #
-war/WEB-INF/deploy/
-war/WEB-INF/classes/
+src/main/webapp/WEB-INF/deploy/
+src/main/webapp/WEB-INF/classes/
 
 #compilation logs
 .gwt/
