@@ -1,0 +1,22 @@
+Cards:
+	(Pi) get card with id xyz
+	(Pi) create card without user_id and description
+	[(Pi) set user_id => "Unknown User"?]
+	
+	(GWT) read cards
+	(GWT) change description
+	(GWT) change user_id
+	(GWT) delete card
+	
+History:
+	(Pi) create history entry
+	
+	(GWT) read history
+	
+Slots:
+	(GWT) change drink
+	
+Users:
+	(GWT) add user
+	(GWT) delete user
+	(GWT) change user

@@ -9,9 +9,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import de.rtcustomz.getraenkeautomat.model.Card;
@@ -23,20 +26,22 @@ public class CardsResource {
 	UriInfo uriInfo;
 	
 	Map<String, Card> cards;
-	//@Context
-	//Database db;
 
 	public CardsResource() {
 		cards = new HashMap<String, Card>();
 	}
 
 	@PUT
-	@Path("/{id}.{type}")
-	public Response createCard(@PathParam("id") String id, @PathParam("type") String type) {
+	@Path("/{id}")
+	public Response createCard(@PathParam("id") String id, @QueryParam("type") String type) {
+		if(type == null)
+			return Response.status(Status.BAD_REQUEST).build();
+		
 		if(cards.containsKey(id))
 			return Response.noContent().build();
 		else {
-			cards.put(id, new Card(id, type));
+			Card card = new Card(id, type);
+			cards.put(id, card);
 			return Response.created(uriInfo.getAbsolutePath()).build();
 		}
 		// TODO: save card in database
@@ -47,11 +52,10 @@ public class CardsResource {
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Card getCard(@PathParam("id") String id) {
-		//db = new Database();
-		//db.testQuery();
 		if(cards.containsKey(id))
 			return cards.get(id);
 		else
-			return null;
+			throw new WebApplicationException(404);
+		// TODO: load card from database
 	}
 }
