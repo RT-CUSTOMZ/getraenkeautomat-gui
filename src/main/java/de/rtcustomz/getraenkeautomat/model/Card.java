@@ -3,8 +3,8 @@ package de.rtcustomz.getraenkeautomat.model;
 public class Card {
 	private final String id;
 	private final String type;
-	private final String description;
-	private final int user_id;
+	private String description;
+	private int user_id;
 
 	public Card(String id, String type, String description, int user_id) {
 		this.id = id;
@@ -13,6 +13,11 @@ public class Card {
 		this.user_id = user_id;
 	}
 	
+	public Card(String id, String type) {
+		this.id = id;
+		this.type = type;
+	}
+
 	public String getId() {
 		return id;
 	}

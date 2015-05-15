@@ -1,5 +1,9 @@
 package de.rtcustomz.getraenkeautomat.resources;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Singleton;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -12,25 +16,42 @@ import javax.ws.rs.core.UriInfo;
 
 import de.rtcustomz.getraenkeautomat.model.Card;
 
-//import de.rtcustomz.getraenkeautomat.model.Card;
-
+@Singleton
 @Path("cards")
 public class CardsResource {
 	@Context
 	UriInfo uriInfo;
+	
+	Map<String, Card> cards;
+	//@Context
+	//Database db;
+
+	public CardsResource() {
+		cards = new HashMap<String, Card>();
+	}
 
 	@PUT
-	@Path("/{id}")
-	public Response createCard(@PathParam("id") String id) {
-		// TODO: create card with no correspondent user, response with Response.created(uriInfo.getAbsolutePath()).build();
-		// if card already exists, do nothing: Response.noContent().build()
-		return Response.noContent().build();
+	@Path("/{id}.{type}")
+	public Response createCard(@PathParam("id") String id, @PathParam("type") String type) {
+		if(cards.containsKey(id))
+			return Response.noContent().build();
+		else {
+			cards.put(id, new Card(id, type));
+			return Response.created(uriInfo.getAbsolutePath()).build();
+		}
+		// TODO: save card in database
+		
 	}
 	
 	@GET
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Card getCard(@PathParam("id") String id) {
-		return new Card("21436", "42", "testkarte", 1);
+		//db = new Database();
+		//db.testQuery();
+		if(cards.containsKey(id))
+			return cards.get(id);
+		else
+			return null;
 	}
 }
