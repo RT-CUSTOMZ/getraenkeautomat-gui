@@ -16,6 +16,8 @@ import de.rtcustomz.getraenkeautomat.model.Card;
 public class CardsResource {
 	@Context
 	UriInfo uriInfo;
+	@Context
+	Database db;
 
 	@PUT
 	@Path("/{id}")
@@ -29,6 +31,8 @@ public class CardsResource {
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Card getCard(@PathParam("id") String id) {
+		db = new Database();
+		db.testQuery();
 		return new Card("21436", "42", "testkarte", 1);
 	}
 }
