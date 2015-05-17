@@ -33,7 +33,7 @@ public class Card {
 	public Card(String id, String type) {
 		this.id = id;
 		this.type = type;
-		//this.created = new Timestamp(Calendar.getInstance().getTimeInMillis());
+		this.created = new Timestamp(Calendar.getInstance().getTimeInMillis());
 	}
 
 	public String getId() {
