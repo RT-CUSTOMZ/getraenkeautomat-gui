@@ -23,12 +23,6 @@ import de.rtcustomz.getraenkeautomat.util.DatabaseController;
 public class CardsResource {
 	@Context
 	UriInfo uriInfo;
-	
-//	Map<String, Card> cards;
-
-//	public CardsResource() {
-//		cards = new HashMap<String, Card>();
-//	}
 
 	@PUT
 	@Path("/{id}")
@@ -40,13 +34,11 @@ public class CardsResource {
 		em = DatabaseController.createEntityManager();
 		
 		try {
-	//		if(cards.containsKey(id))
 			if(em.find(Card.class, id) != null)
 				return Response.noContent().build();
 			else {
 				em.getTransaction().begin();
 				Card card = new Card(id, type);
-	//			cards.put(id, card);
 				em.persist(card);
 				em.getTransaction().commit();
 				
@@ -55,8 +47,6 @@ public class CardsResource {
 		} finally {
 			em.close();
 		}
-		// TODO: save card in database
-		
 	}
 	
 	@GET
@@ -71,12 +61,9 @@ public class CardsResource {
 		} finally {
 			em.close();
 		}
-//		if(cards.containsKey(id))
-//			return cards.get(id);
 		if(card != null)
 			return card;
 		else
 			throw new WebApplicationException(404);
-		// TODO: load card from database
 	}
 }
