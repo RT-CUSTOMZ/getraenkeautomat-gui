@@ -1,4 +1,4 @@
-package de.rtcustomz.getraenkeautomat.resources;
+package de.rtcustomz.getraenkeautomat.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
