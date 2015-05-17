@@ -16,7 +16,7 @@ public class Card {
 	@Id
 	private String id;
 	
-	@Column(nullable=false, updatable=false)
+	@Column(name="ctype", nullable=false, updatable=false)
 	private String type;
 	
 	private String description;

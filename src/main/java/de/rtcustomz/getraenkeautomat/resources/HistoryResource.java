@@ -27,13 +27,14 @@ public class HistoryResource {
 		this.history = new HashMap<Integer, HistoryEntry>();
 	}
 	
+	// TODO: modify createHistoryEntry
 	@POST
 	@Path("/create")
 	public Response createHistoryEntry(@QueryParam("card_id") String card_id, @QueryParam("slot") Integer slot) {
 		if(card_id == null || slot == null)
 			return Response.status(Status.BAD_REQUEST).build();
 		
-		HistoryEntry historyEntry = new HistoryEntry(card_id, slot);
+		HistoryEntry historyEntry = new HistoryEntry();//(card_id, slot);
 		history.put(history.size()+1, historyEntry);
 		
 		URI location = uriInfo.getAbsolutePath();
