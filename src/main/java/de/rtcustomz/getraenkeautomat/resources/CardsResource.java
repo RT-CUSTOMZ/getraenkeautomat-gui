@@ -44,6 +44,9 @@ public class CardsResource {
 				
 				return Response.created(uriInfo.getAbsolutePath()).build();
 			}
+		} catch (Exception e) {
+			em.getTransaction().rollback();
+			throw e;
 		} finally {
 			em.close();
 		}
