@@ -1,7 +1,12 @@
 package de.rtcustomz.getraenkeautomat.resources;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.annotation.Resource;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -23,34 +28,47 @@ import de.rtcustomz.getraenkeautomat.util.DatabaseController;
 public class CardsResource {
 	@Context
 	UriInfo uriInfo;
+	
+	@Resource
+	UserTransaction utx;
+	
+	EntityManager em;
+	
+	@PostConstruct
+	public void init() {
+		em = DatabaseController.createEntityManager();
+	}
+	
+	@PreDestroy
+	public void destroy() {
+		em.close();
+	}
 
 	@PUT
 	@Path("/{id}")
 	public Response createCard(@PathParam("id") String id, @QueryParam("type") String type) {
-		EntityManager em;
 		if(type == null)
 			return Response.status(Status.BAD_REQUEST).build();
-		
-		em = DatabaseController.createEntityManager();
 		
 		try {
 			if(em.find(Card.class, id) != null)
 				return Response.noContent().build();
 			else {
-				em.getTransaction().begin();
+				utx.begin();
+				em.joinTransaction();
 				Card card = new Card(id, type);
 				em.persist(card);
 				em.flush();
-				em.getTransaction().commit();
+				utx.commit();
 				
 				return Response.created(uriInfo.getAbsolutePath()).build();
 			}
 		} catch (Exception e) {
-			if (em.getTransaction().isActive())
-				em.getTransaction().rollback();
-			throw e;
+			throw new WebApplicationException(500);
 		} finally {
-			em.close();
+			try {
+				utx.rollback();
+			} catch (Exception ignore) {}
 		}
 	}
 	
@@ -58,14 +76,10 @@ public class CardsResource {
 	@Path("/{id}")
 	@Produces(MediaType.APPLICATION_JSON)
 	public Card getCard(@PathParam("id") String id) {
-		EntityManager em = DatabaseController.createEntityManager();
 		Card card = null;
 		
-		try {
-			card = em.find(Card.class, id);
-		} finally {
-			em.close();
-		}
+		card = em.find(Card.class, id);
+		
 		if(card != null)
 			return card;
 		else
