@@ -5,6 +5,7 @@ import java.util.Calendar;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -14,17 +15,18 @@ import javax.persistence.Table;
 @Table(name="history")
 public class HistoryEntry {
 	@Id
+	@GeneratedValue
 	private long id;
 	
 	@ManyToOne
 	@JoinColumn(name="card_id", referencedColumnName="id")
 	private Card card;
 	
-	@Column(name="htime")
+	@Column(name="htime", nullable=false, updatable=false)
 	private Timestamp time;
 	
 	@ManyToOne
-	@JoinColumn(name="slot_id", referencedColumnName="id")
+	@JoinColumn(name="slot_id", referencedColumnName="id", nullable=false, updatable=false)
 	private Slot slot;
 	
 	public HistoryEntry() {}

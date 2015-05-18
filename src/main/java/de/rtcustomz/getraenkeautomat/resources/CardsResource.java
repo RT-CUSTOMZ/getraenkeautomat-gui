@@ -40,12 +40,14 @@ public class CardsResource {
 				em.getTransaction().begin();
 				Card card = new Card(id, type);
 				em.persist(card);
+				em.flush();
 				em.getTransaction().commit();
 				
 				return Response.created(uriInfo.getAbsolutePath()).build();
 			}
 		} catch (Exception e) {
-			em.getTransaction().rollback();
+			if (em.getTransaction().isActive())
+				em.getTransaction().rollback();
 			throw e;
 		} finally {
 			em.close();
