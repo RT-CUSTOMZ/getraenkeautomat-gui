@@ -16,6 +16,12 @@
 		<servlet-name>greetServlet</servlet-name>
 		<servlet-class>de.rtcustomz.getraenkeautomat.server.GreetingServiceImpl</servlet-class>
 	</servlet>
+	
+	<servlet>
+		<servlet-name>CardService</servlet-name>
+		<servlet-class>de.rtcustomz.getraenkeautomat.server.CardServiceImpl</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 
 	<servlet>
 		<servlet-name>GetraenkeautomatRESTService</servlet-name>
@@ -32,6 +38,11 @@
 	<servlet-mapping>
 		<servlet-name>greetServlet</servlet-name>
 		<url-pattern>/GetraenkeautomatGUI/greet</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>CardService</servlet-name>
+		<url-pattern>/GetraenkeautomatGUI/cards</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
