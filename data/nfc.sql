@@ -21,13 +21,13 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `cards`;
 CREATE TABLE `cards` (
   `id` varchar(32) NOT NULL,
-  `type` varchar(32) NOT NULL,
+  `ctype` varchar(32) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `created` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  KEY `user` (`user_id`),
+  KEY `user_key` (`user_id`),
   CONSTRAINT `user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='Table for cards and tags';
 
@@ -44,7 +44,7 @@ DROP TABLE IF EXISTS `history`;
 CREATE TABLE `history` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `card_id` varchar(32) DEFAULT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `htime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `slot_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
