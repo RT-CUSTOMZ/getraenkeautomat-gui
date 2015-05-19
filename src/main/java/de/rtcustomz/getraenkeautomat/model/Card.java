@@ -9,12 +9,16 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 @Entity
 @Table(name="cards")
 public class Card {
 	@Id
 	private String id;
+	
+	@Version
+	private int version;
 	
 	@Column(name="ctype", nullable=false, updatable=false)
 	private String type;
@@ -74,5 +78,13 @@ public class Card {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 }

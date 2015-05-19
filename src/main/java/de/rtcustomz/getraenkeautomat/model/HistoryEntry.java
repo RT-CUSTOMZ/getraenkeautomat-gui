@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 @Entity
 @Table(name="history")
@@ -17,6 +18,9 @@ public class HistoryEntry {
 	@Id
 	@GeneratedValue
 	private long id;
+	
+	@Version
+	private int version;
 	
 	@ManyToOne
 	@JoinColumn(name="card_id", referencedColumnName="id")
@@ -67,5 +71,13 @@ public class HistoryEntry {
 
 	public void setSlot(Slot slot) {
 		this.slot = slot;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 }

@@ -2,9 +2,6 @@ package de.rtcustomz.getraenkeautomat.client;
 
 import java.util.List;
 
-import javax.transaction.NotSupportedException;
-import javax.transaction.SystemException;
-
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 
