@@ -1,5 +1,7 @@
 package de.rtcustomz.getraenkeautomat.client;
 
+import java.util.Date;
+
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -7,7 +9,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -15,8 +16,15 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.web.bindery.event.shared.EventBus;
+import com.google.web.bindery.event.shared.SimpleEventBus;
+import com.google.web.bindery.requestfactory.shared.Receiver;
+import com.google.web.bindery.requestfactory.shared.Request;
 
+import de.rtcustomz.getraenkeautomat.shared.CardProxy;
+import de.rtcustomz.getraenkeautomat.shared.CardRequest;
 import de.rtcustomz.getraenkeautomat.shared.FieldVerifier;
+import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -36,6 +44,8 @@ public class GetraenkeautomatGUI implements EntryPoint {
   private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
 
   private final Messages messages = GWT.create(Messages.class);
+  
+  private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 
   /**
    * This is the entry point method.
@@ -45,6 +55,9 @@ public class GetraenkeautomatGUI implements EntryPoint {
     final TextBox nameField = new TextBox();
     nameField.setText( messages.nameField() );
     final Label errorLabel = new Label();
+    
+    final EventBus eventBus = new SimpleEventBus();
+    requestFactory.initialize(eventBus);
 
     // We can add style names to widgets
     sendButton.addStyleName("sendButton");
@@ -121,24 +134,49 @@ public class GetraenkeautomatGUI implements EntryPoint {
         sendButton.setEnabled(false);
         textToServerLabel.setText(textToServer);
         serverResponseLabel.setText("");
-        greetingService.greetServer(textToServer, new AsyncCallback<String>() {
-          public void onFailure(Throwable caught) {
-            // Show the RPC error message to the user
-            dialogBox.setText("Remote Procedure Call - Failure");
-            serverResponseLabel.addStyleName("serverResponseLabelError");
-            serverResponseLabel.setHTML(SERVER_ERROR);
-            dialogBox.center();
-            closeButton.setFocus(true);
-          }
-
-          public void onSuccess(String result) {
-            dialogBox.setText("Remote Procedure Call");
-            serverResponseLabel.removeStyleName("serverResponseLabelError");
-            serverResponseLabel.setHTML(result);
-            dialogBox.center();
-            closeButton.setFocus(true);
-          }
-        });
+        
+        
+        CardRequest request = requestFactory.cardRequest();
+        CardProxy newCard = request.create(CardProxy.class);
+        
+        // Card card = new Card(id, type);
+        newCard.setId("42");
+        newCard.setType("42");
+        newCard.setDescription("test card created by GWT");
+        newCard.setCreated(new Date());
+        
+        Request<Void> createReq = request.persist().using(newCard);
+        
+        
+		createReq.fire(new Receiver<Void>() {
+			@Override
+			public void onSuccess(Void arg0) {
+				dialogBox.setText("Remote Procedure Call");
+	            serverResponseLabel.removeStyleName("serverResponseLabelError");
+	            serverResponseLabel.setHTML("new card created, check your database");
+	            dialogBox.center();
+	            closeButton.setFocus(true);
+			}
+		});
+    
+//        greetingService.greetServer(textToServer, new AsyncCallback<String>() {
+//          public void onFailure(Throwable caught) {
+//            // Show the RPC error message to the user
+//            dialogBox.setText("Remote Procedure Call - Failure");
+//            serverResponseLabel.addStyleName("serverResponseLabelError");
+//            serverResponseLabel.setHTML(SERVER_ERROR);
+//            dialogBox.center();
+//            closeButton.setFocus(true);
+//          }
+//
+//          public void onSuccess(String result) {
+//            dialogBox.setText("Remote Procedure Call");
+//            serverResponseLabel.removeStyleName("serverResponseLabelError");
+//            serverResponseLabel.setHTML(result);
+//            dialogBox.center();
+//            closeButton.setFocus(true);
+//          }
+//        });
       }
     }
 

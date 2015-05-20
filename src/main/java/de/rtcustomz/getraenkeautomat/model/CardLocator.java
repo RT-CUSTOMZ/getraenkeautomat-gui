@@ -56,7 +56,7 @@ public class CardLocator extends Locator<Card, String> {
 
 	@Override
 	public Object getVersion(Card domainObject) {
-		return null;
+		return domainObject.getVersion();
 	}
 
 }

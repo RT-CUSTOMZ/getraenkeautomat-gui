@@ -1,7 +1,6 @@
 package de.rtcustomz.getraenkeautomat.model;
 
-import java.sql.Timestamp;
-import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +8,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 @Entity
@@ -29,15 +30,16 @@ public class Card {
 	@JoinColumn(name="user_id", referencedColumnName="id")
 	private User user;
 	
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(updatable=false)
-	private Timestamp created;
+	private Date created;
 	
 	public Card() {}
 
 	public Card(String id, String type) {
 		this.id = id;
 		this.type = type;
-		this.created = new Timestamp(Calendar.getInstance().getTimeInMillis());
+		this.created = new Date();
 	}
 
 	public String getId() {
@@ -56,11 +58,11 @@ public class Card {
 		this.type = type;
 	}
 	
-	public Timestamp getCreated() {
+	public Date getCreated() {
 		return created;
 	}
 
-	public void setCreated(Timestamp created) {
+	public void setCreated(Date created) {
 		this.created = created;
 	}
 

@@ -1,6 +1,6 @@
 package de.rtcustomz.getraenkeautomat.shared;
 
-import java.sql.Timestamp;
+import java.util.Date;
 
 import com.google.web.bindery.requestfactory.shared.EntityProxy;
 import com.google.web.bindery.requestfactory.shared.ProxyFor;
@@ -18,9 +18,9 @@ public interface CardProxy extends EntityProxy {
 
 	public void setType(String type);
 	
-	public Timestamp getCreated();
+	public Date getCreated();
 
-	public void setCreated(Timestamp created);
+	public void setCreated(Date created);
 
 	public String getDescription();
 
