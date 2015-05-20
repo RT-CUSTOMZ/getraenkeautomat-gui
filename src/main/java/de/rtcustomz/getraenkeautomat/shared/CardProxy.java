@@ -1,4 +1,4 @@
-package de.rtcustomz.getraenkeautomat.client;
+package de.rtcustomz.getraenkeautomat.shared;
 
 import java.sql.Timestamp;
 
