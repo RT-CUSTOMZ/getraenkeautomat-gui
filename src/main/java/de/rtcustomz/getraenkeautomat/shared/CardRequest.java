@@ -2,14 +2,14 @@ package de.rtcustomz.getraenkeautomat.shared;
 
 import java.util.List;
 
-import com.google.web.bindery.requestfactory.shared.InstanceRequest;
 import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.RequestContext;
 import com.google.web.bindery.requestfactory.shared.Service;
 
-import de.rtcustomz.getraenkeautomat.model.Card;
+import de.rtcustomz.getraenkeautomat.server.CardDAO;
+import de.rtcustomz.getraenkeautomat.server.ModelServiceLocator;
 
-@Service(Card.class)
+@Service(value = CardDAO.class, locator = ModelServiceLocator.class)
 public interface CardRequest extends RequestContext {
 	Request<Long> countCards();
 	
@@ -19,11 +19,9 @@ public interface CardRequest extends RequestContext {
 	
 	Request<CardProxy> findCard(int id);
 	
-	InstanceRequest<CardProxy, Void> persist();
+	Request<Void> save(CardProxy card);
 	
-	InstanceRequest<CardProxy, Void> create();
-	
-	InstanceRequest<CardProxy, Void> edit();
+	Request<CardProxy> createCard(String id, String type);
 
-	InstanceRequest<CardProxy, Void> remove();
+	Request<Void> delete(CardProxy card);
 }

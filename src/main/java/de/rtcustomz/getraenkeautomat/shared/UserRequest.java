@@ -2,14 +2,14 @@ package de.rtcustomz.getraenkeautomat.shared;
 
 import java.util.List;
 
-import com.google.web.bindery.requestfactory.shared.InstanceRequest;
 import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.RequestContext;
 import com.google.web.bindery.requestfactory.shared.Service;
 
-import de.rtcustomz.getraenkeautomat.model.User;
+import de.rtcustomz.getraenkeautomat.server.ModelServiceLocator;
+import de.rtcustomz.getraenkeautomat.server.UserDAO;
 
-@Service(User.class)
+@Service(value = UserDAO.class, locator = ModelServiceLocator.class)
 public interface UserRequest extends RequestContext {
 	Request<Long> countUsers();
 	
@@ -19,11 +19,9 @@ public interface UserRequest extends RequestContext {
 	
 	Request<UserProxy> findUser(int id);
 	
-	InstanceRequest<UserProxy, Void> persist();
+	Request<Void> save(UserProxy User);
 	
-	InstanceRequest<UserProxy, Void> create();
-	
-	InstanceRequest<UserProxy, Void> edit();
+	Request<UserProxy> createUser(String id, String type);
 
-	InstanceRequest<UserProxy, Void> remove();
+	Request<Void> delete(UserProxy User);
 }

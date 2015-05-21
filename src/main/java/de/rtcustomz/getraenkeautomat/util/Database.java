@@ -8,7 +8,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 
-// FIXME dahrens: use jndi to get mysql database connection
 public class Database 
 {
 	private Connection conn=null;

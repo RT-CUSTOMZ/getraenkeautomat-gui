@@ -5,7 +5,6 @@ import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
-import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
