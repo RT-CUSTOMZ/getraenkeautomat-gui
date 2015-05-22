@@ -63,11 +63,10 @@ public class CardsResource {
 				return Response.created(uriInfo.getAbsolutePath()).build();
 			}
 		} catch (Exception e) {
-			throw new WebApplicationException(500);
-		} finally {
 			try {
 				utx.rollback();
 			} catch (Exception ignore) {}
+			throw new WebApplicationException(500);
 		}
 	}
 	

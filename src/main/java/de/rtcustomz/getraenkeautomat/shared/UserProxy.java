@@ -4,8 +4,9 @@ import com.google.web.bindery.requestfactory.shared.EntityProxy;
 import com.google.web.bindery.requestfactory.shared.ProxyFor;
 
 import de.rtcustomz.getraenkeautomat.model.User;
+import de.rtcustomz.getraenkeautomat.server.UserLocator;
 
-@ProxyFor(User.class)
+@ProxyFor(value = User.class, locator = UserLocator.class)
 public interface UserProxy extends EntityProxy {
 	public String getFirstname();
 

@@ -7,9 +7,8 @@ import com.google.web.bindery.requestfactory.shared.RequestContext;
 import com.google.web.bindery.requestfactory.shared.Service;
 
 import de.rtcustomz.getraenkeautomat.server.CardDAO;
-import de.rtcustomz.getraenkeautomat.server.ModelServiceLocator;
 
-@Service(value = CardDAO.class, locator = ModelServiceLocator.class)
+@Service(CardDAO.class)
 public interface CardRequest extends RequestContext {
 	Request<Long> countCards();
 	
@@ -17,7 +16,7 @@ public interface CardRequest extends RequestContext {
 	
 	Request<List<CardProxy>> findCardEntries(int firstResult, int maxResults);
 	
-	Request<CardProxy> findCard(int id);
+	Request<CardProxy> findById(String id);
 	
 	Request<Void> save(CardProxy card);
 	

@@ -6,31 +6,31 @@ import java.util.List;
 import de.rtcustomz.getraenkeautomat.model.User;
 
 public class UserDAO {
-	public static Long countUsers() {
+	public Long countUsers() {
 		return 42l;
 	}
 	
-	public static List<User> findAllUsers() {
+	public List<User> findAllUsers() {
 		return new ArrayList<User>();
 	}
 	
-	public static List<User> findUserEntries(int firstResult, int maxResults) {
+	public List<User> findUserEntries(int firstResult, int maxResults) {
 		return new ArrayList<User>();
 	}
 	
-	public static User findUser(int id) {
+	public User findById(int id) {
 		return new User();
 	}
 	
-	public static void save(User User) {
+	public void save(User user) {
 		
 	}
 	
-	public static User createUser(String id, String type) {
+	public User createUser(String first_name, String last_name, String nickname) {
 		return new User();
 	}
 
-	public static void delete(User User) {
+	public void delete(User user) {
 		
 	}
 }

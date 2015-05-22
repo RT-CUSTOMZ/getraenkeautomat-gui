@@ -6,8 +6,9 @@ import com.google.web.bindery.requestfactory.shared.EntityProxy;
 import com.google.web.bindery.requestfactory.shared.ProxyFor;
 
 import de.rtcustomz.getraenkeautomat.model.Card;
+import de.rtcustomz.getraenkeautomat.server.CardLocator;
 
-@ProxyFor(Card.class)
+@ProxyFor(value = Card.class, locator = CardLocator.class)
 public interface CardProxy extends EntityProxy {
 	public String getId();
 	

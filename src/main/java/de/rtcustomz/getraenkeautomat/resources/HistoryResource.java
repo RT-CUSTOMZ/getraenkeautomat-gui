@@ -69,11 +69,10 @@ public class HistoryResource {
 			
 			return Response.created(URI.create(location.getPath()+"/"+historyEntry.getId())).build();
 		} catch (Exception e) {
-			throw new WebApplicationException(500);
-		} finally {
 			try {
 				utx.rollback();
 			} catch (Exception ignore) {}
+			throw new WebApplicationException(500);
 		}
 		
 	}

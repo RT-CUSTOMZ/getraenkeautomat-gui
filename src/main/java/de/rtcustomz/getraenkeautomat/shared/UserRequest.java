@@ -17,11 +17,11 @@ public interface UserRequest extends RequestContext {
 	
 	Request<List<UserProxy>> findUserEntries(int firstResult, int maxResults);
 	
-	Request<UserProxy> findUser(int id);
+	Request<UserProxy> findById(int id);
 	
-	Request<Void> save(UserProxy User);
+	Request<Void> save(UserProxy user);
 	
-	Request<UserProxy> createUser(String id, String type);
+	Request<UserProxy> createUser(String first_name, String last_name, String nickname);
 
-	Request<Void> delete(UserProxy User);
+	Request<Void> delete(UserProxy user);
 }
