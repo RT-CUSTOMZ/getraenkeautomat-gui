@@ -4,12 +4,16 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 @Entity
 @Table(name="slots")
 public class Slot {
 	@Id
 	private int id;
+	
+	@Version
+	private int version;
 	
 	@Column(nullable=false)
 	private String drink;
@@ -34,5 +38,13 @@ public class Slot {
 
 	public void setDrink(String drink) {
 		this.drink = drink;
+	}
+
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 }

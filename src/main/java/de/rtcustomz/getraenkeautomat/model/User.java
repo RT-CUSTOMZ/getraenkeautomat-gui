@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 @Entity
 @Table(name="users")
@@ -12,6 +13,9 @@ public class User {
 	@Id
 	@GeneratedValue
 	private int id;
+	
+	@Version
+	private int version;
 	
 	@Column(nullable=false, updatable=false)
 	private String first_name;
@@ -26,6 +30,12 @@ public class User {
 	public User(String first_name, String last_name) {
 		this.first_name = first_name;
 		this.last_name = last_name;
+	}
+
+	public User(String first_name, String last_name, String nickname) {
+		this.first_name = first_name;
+		this.last_name = last_name;
+		this.nickname = nickname;
 	}
 
 	public String getFirstname() {
@@ -52,19 +62,19 @@ public class User {
 		this.id = id;
 	}
 
-	public String getFirst_name() {
-		return first_name;
-	}
-
-	public void setFirst_name(String first_name) {
+	public void setFirstname(String first_name) {
 		this.first_name = first_name;
 	}
 
-	public String getLast_name() {
-		return last_name;
+	public void setLastname(String last_name) {
+		this.last_name = last_name;
 	}
 
-	public void setLast_name(String last_name) {
-		this.last_name = last_name;
+	public int getVersion() {
+		return version;
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 }

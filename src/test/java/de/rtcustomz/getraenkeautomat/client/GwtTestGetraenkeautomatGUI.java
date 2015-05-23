@@ -1,6 +1,7 @@
 package de.rtcustomz.getraenkeautomat.client;
 
 import de.rtcustomz.getraenkeautomat.shared.FieldVerifier;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.junit.client.GWTTestCase;
 import com.google.gwt.user.client.rpc.AsyncCallback;

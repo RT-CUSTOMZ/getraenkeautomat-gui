@@ -16,12 +16,6 @@
 		<servlet-name>greetServlet</servlet-name>
 		<servlet-class>de.rtcustomz.getraenkeautomat.server.GreetingServiceImpl</servlet-class>
 	</servlet>
-	
-	<servlet>
-		<servlet-name>CardService</servlet-name>
-		<servlet-class>de.rtcustomz.getraenkeautomat.server.CardServiceImpl</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
 
 	<servlet>
 		<servlet-name>GetraenkeautomatRESTService</servlet-name>
@@ -35,14 +29,25 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
+	<servlet>
+		<servlet-name>requestFactoryServlet</servlet-name>
+		<servlet-class>com.google.web.bindery.requestfactory.server.RequestFactoryServlet</servlet-class>
+		<init-param>
+			<param-name>symbolMapsDirectory</param-name>
+			<!-- You'll need to compile with -extras and move the symbolMaps directory 
+				to this location if you want stack trace deobfuscation to work -->
+			<param-value>WEB-INF/classes/symbolMaps/</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>requestFactoryServlet</servlet-name>
+		<url-pattern>/gwtRequest</url-pattern>
+	</servlet-mapping>
+
 	<servlet-mapping>
 		<servlet-name>greetServlet</servlet-name>
 		<url-pattern>/GetraenkeautomatGUI/greet</url-pattern>
-	</servlet-mapping>
-	
-	<servlet-mapping>
-		<servlet-name>CardService</servlet-name>
-		<url-pattern>/GetraenkeautomatGUI/cards</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>
