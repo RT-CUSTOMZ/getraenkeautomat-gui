@@ -6,38 +6,38 @@ import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import de.rtcustomz.getraenkeautomat.model.Card;
+import de.rtcustomz.getraenkeautomat.model.Slot;
 import de.rtcustomz.getraenkeautomat.util.DatabaseController;
 
 @Singleton
-public class CardDAO {
+public class SlotDAO {
 	private static EntityManager em = DatabaseController.createEntityManager();
 	
-	public static Long countCards() {
-		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM cards;", Long.class);
+	public static Long countSlots() {
+		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM slots;", Long.class);
 		return q.getSingleResult();
 	}
 	
-	public static List<Card> findAllCards() {
-		TypedQuery<Card> q = em.createQuery("FROM cards;", Card.class);
+	public static List<Slot> findAllSlots() {
+		TypedQuery<Slot> q = em.createQuery("FROM slots;", Slot.class);
 		return q.getResultList();
 	}
 	
-	public static List<Card> findCardEntries(int firstResult, int maxResults) {
-		TypedQuery<Card> q = em.createQuery("FROM cards;", Card.class);
+	public static List<Slot> findSlotEntries(int firstResult, int maxResults) {
+		TypedQuery<Slot> q = em.createQuery("FROM slots;", Slot.class);
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
 	
-	public static Card findById(String id) {
-		return em.find(Card.class, id);
+	public static Slot findById(Integer id) {
+		return em.find(Slot.class, id);
 	}
 	
-	public static void save(Card card) throws Exception {
+	public static void save(Slot slot) throws Exception {
 		try {
 			em.getTransaction().begin();
-			em.persist(card);
+			em.persist(slot);
 			em.flush();
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -48,15 +48,15 @@ public class CardDAO {
 		}
 	}
 	
-	public static Card createCard(String id, String type) throws Exception {
+	public static Slot createSlot(Integer id, String drink) throws Exception {
 		try {
 			em.getTransaction().begin();
-			Card card = new Card(id, type);
-			em.persist(card);
+			Slot slot = new Slot(id, drink);
+			em.persist(slot);
 			em.flush();
 			em.getTransaction().commit();
 			
-			return card;
+			return slot;
 		} catch (Exception e) {
 			try {
 				em.getTransaction().rollback();
@@ -65,10 +65,10 @@ public class CardDAO {
 		}
 	}
 
-	public static void delete(Card card) throws Exception {
+	public static void delete(Slot slot) throws Exception {
 		try {
 			em.getTransaction().begin();
-			em.remove(card);
+			em.remove(slot);
 			em.flush();
 			em.getTransaction().commit();
 		} catch (Exception e) {

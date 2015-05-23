@@ -21,7 +21,6 @@ import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 
-import de.rtcustomz.getraenkeautomat.shared.CardProxy;
 import de.rtcustomz.getraenkeautomat.shared.CardRequest;
 import de.rtcustomz.getraenkeautomat.shared.FieldVerifier;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;

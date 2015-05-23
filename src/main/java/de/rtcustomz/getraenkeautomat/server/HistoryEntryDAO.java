@@ -7,37 +7,39 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import de.rtcustomz.getraenkeautomat.model.Card;
+import de.rtcustomz.getraenkeautomat.model.HistoryEntry;
+import de.rtcustomz.getraenkeautomat.model.Slot;
 import de.rtcustomz.getraenkeautomat.util.DatabaseController;
 
 @Singleton
-public class CardDAO {
+public class HistoryEntryDAO {
 	private static EntityManager em = DatabaseController.createEntityManager();
 	
-	public static Long countCards() {
-		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM cards;", Long.class);
+	public static Long countHistoryEntries() {
+		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM history;", Long.class);
 		return q.getSingleResult();
 	}
 	
-	public static List<Card> findAllCards() {
-		TypedQuery<Card> q = em.createQuery("FROM cards;", Card.class);
+	public static List<HistoryEntry> findAllHistoryEntries() {
+		TypedQuery<HistoryEntry> q = em.createQuery("FROM history;", HistoryEntry.class);
 		return q.getResultList();
 	}
 	
-	public static List<Card> findCardEntries(int firstResult, int maxResults) {
-		TypedQuery<Card> q = em.createQuery("FROM cards;", Card.class);
+	public static List<HistoryEntry> findHistoryEntries(int firstResult, int maxResults) {
+		TypedQuery<HistoryEntry> q = em.createQuery("FROM history;", HistoryEntry.class);
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
 	}
 	
-	public static Card findById(String id) {
-		return em.find(Card.class, id);
+	public static HistoryEntry findById(Long id) {
+		return em.find(HistoryEntry.class, id);
 	}
 	
-	public static void save(Card card) throws Exception {
+	public static void save(HistoryEntry historyEntry) throws Exception {
 		try {
 			em.getTransaction().begin();
-			em.persist(card);
+			em.persist(historyEntry);
 			em.flush();
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -48,15 +50,15 @@ public class CardDAO {
 		}
 	}
 	
-	public static Card createCard(String id, String type) throws Exception {
+	public static HistoryEntry createHistoryEntry(Card card, Slot slot) throws Exception {
 		try {
 			em.getTransaction().begin();
-			Card card = new Card(id, type);
-			em.persist(card);
+			HistoryEntry historyEntry = new HistoryEntry(card, slot);
+			em.persist(historyEntry);
 			em.flush();
 			em.getTransaction().commit();
 			
-			return card;
+			return historyEntry;
 		} catch (Exception e) {
 			try {
 				em.getTransaction().rollback();
@@ -65,10 +67,10 @@ public class CardDAO {
 		}
 	}
 
-	public static void delete(Card card) throws Exception {
+	public static void delete(HistoryEntry historyEntry) throws Exception {
 		try {
 			em.getTransaction().begin();
-			em.remove(card);
+			em.remove(historyEntry);
 			em.flush();
 			em.getTransaction().commit();
 		} catch (Exception e) {

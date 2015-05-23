@@ -6,4 +6,8 @@ public interface ModelRequestFactory extends RequestFactory {
 	CardRequest cardRequest();
 	
 	UserRequest userRequest();
+	
+	HistoryRequest historyRequest();
+	
+	SlotRequest slotRequest();
 }

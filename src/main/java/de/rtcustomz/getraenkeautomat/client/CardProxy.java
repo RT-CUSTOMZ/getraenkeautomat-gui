@@ -1,4 +1,4 @@
-package de.rtcustomz.getraenkeautomat.shared;
+package de.rtcustomz.getraenkeautomat.client;
 
 import java.util.Date;
 

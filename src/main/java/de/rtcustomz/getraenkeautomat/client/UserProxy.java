@@ -1,4 +1,4 @@
-package de.rtcustomz.getraenkeautomat.shared;
+package de.rtcustomz.getraenkeautomat.client;
 
 import com.google.web.bindery.requestfactory.shared.EntityProxy;
 import com.google.web.bindery.requestfactory.shared.ProxyFor;

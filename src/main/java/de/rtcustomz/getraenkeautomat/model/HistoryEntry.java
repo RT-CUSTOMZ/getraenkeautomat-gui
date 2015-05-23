@@ -1,7 +1,6 @@
 package de.rtcustomz.getraenkeautomat.model;
 
-import java.sql.Timestamp;
-import java.util.Calendar;
+import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +9,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Version;
 
 @Entity
@@ -26,8 +27,9 @@ public class HistoryEntry {
 	@JoinColumn(name="card_id", referencedColumnName="id")
 	private Card card;
 	
+	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="htime", nullable=false, updatable=false)
-	private Timestamp time;
+	private Date time;
 	
 	@ManyToOne
 	@JoinColumn(name="slot_id", referencedColumnName="id", nullable=false, updatable=false)
@@ -37,7 +39,7 @@ public class HistoryEntry {
 	
 	public HistoryEntry(Card card, Slot slot) {
 		this.card = card;
-		this.time = new Timestamp(Calendar.getInstance().getTimeInMillis());
+		this.time = new Date();
 		this.slot = slot;
 	}
 
@@ -49,7 +51,7 @@ public class HistoryEntry {
 		return card;
 	}
 
-	public Timestamp getTime() {
+	public Date getTime() {
 		return time;
 	}
 
@@ -65,7 +67,7 @@ public class HistoryEntry {
 		this.card = card;
 	}
 
-	public void setTime(Timestamp time) {
+	public void setTime(Date time) {
 		this.time = time;
 	}
 

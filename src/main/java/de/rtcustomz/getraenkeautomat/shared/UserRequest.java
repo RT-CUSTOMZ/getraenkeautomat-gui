@@ -6,6 +6,7 @@ import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.RequestContext;
 import com.google.web.bindery.requestfactory.shared.Service;
 
+import de.rtcustomz.getraenkeautomat.client.UserProxy;
 import de.rtcustomz.getraenkeautomat.server.UserDAO;
 
 @Service(UserDAO.class)
