@@ -20,6 +20,7 @@ import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.Request;
+import com.google.web.bindery.requestfactory.shared.ServerFailure;
 
 import de.rtcustomz.getraenkeautomat.shared.CardProxy;
 import de.rtcustomz.getraenkeautomat.shared.CardRequest;
@@ -30,159 +31,174 @@ import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class GetraenkeautomatGUI implements EntryPoint {
-  /**
-   * The message displayed to the user when the server cannot be reached or
-   * returns an error.
-   */
-//  private static final String SERVER_ERROR = "An error occurred while "
-//      + "attempting to contact the server. Please check your network "
-//      + "connection and try again.";
+	/**
+	 * The message displayed to the user when the server cannot be reached or
+	 * returns an error.
+	 */
+//	 private static final String SERVER_ERROR = "An error occurred while "
+//	 + "attempting to contact the server. Please check your network "
+//	 + "connection and try again.";
 
-  /**
-   * Create a remote service proxy to talk to the server-side Greeting service.
-   */
-//  private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
+	/**
+	 * Create a remote service proxy to talk to the server-side Greeting
+	 * service.
+	 */
+	// private final GreetingServiceAsync greetingService =
+	// GWT.create(GreetingService.class);
 
-  private final Messages messages = GWT.create(Messages.class);
-  
-  private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	private final Messages messages = GWT.create(Messages.class);
 
-  /**
-   * This is the entry point method.
-   */
-  public void onModuleLoad() {
-    final Button sendButton = new Button( messages.sendButton() );
-    final TextBox nameField = new TextBox();
-    nameField.setText( messages.nameField() );
-    final Label errorLabel = new Label();
-    
-    final EventBus eventBus = new SimpleEventBus();
-    requestFactory.initialize(eventBus);
+	private final ModelRequestFactory requestFactory = GWT
+			.create(ModelRequestFactory.class);
 
-    // We can add style names to widgets
-    sendButton.addStyleName("sendButton");
+	/**
+	 * This is the entry point method.
+	 */
+	public void onModuleLoad() {
+		final Button sendButton = new Button(messages.sendButton());
+		final TextBox nameField = new TextBox();
+		nameField.setText(messages.nameField());
+		final Label errorLabel = new Label();
 
-    // Add the nameField and sendButton to the RootPanel
-    // Use RootPanel.get() to get the entire body element
-    RootPanel.get("nameFieldContainer").add(nameField);
-    RootPanel.get("sendButtonContainer").add(sendButton);
-    RootPanel.get("errorLabelContainer").add(errorLabel);
+		final EventBus eventBus = new SimpleEventBus();
+		requestFactory.initialize(eventBus);
 
-    // Focus the cursor on the name field when the app loads
-    nameField.setFocus(true);
-    nameField.selectAll();
+		// We can add style names to widgets
+		sendButton.addStyleName("sendButton");
 
-    // Create the popup dialog box
-    final DialogBox dialogBox = new DialogBox();
-    dialogBox.setText("Remote Procedure Call");
-    dialogBox.setAnimationEnabled(true);
-    final Button closeButton = new Button("Close");
-    // We can set the id of a widget by accessing its Element
-    closeButton.getElement().setId("closeButton");
-    final Label textToServerLabel = new Label();
-    final HTML serverResponseLabel = new HTML();
-    VerticalPanel dialogVPanel = new VerticalPanel();
-    dialogVPanel.addStyleName("dialogVPanel");
-    dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
-    dialogVPanel.add(textToServerLabel);
-    dialogVPanel.add(new HTML("<br><b>Server replies:</b>"));
-    dialogVPanel.add(serverResponseLabel);
-    dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
-    dialogVPanel.add(closeButton);
-    dialogBox.setWidget(dialogVPanel);
+		// Add the nameField and sendButton to the RootPanel
+		// Use RootPanel.get() to get the entire body element
+		RootPanel.get("nameFieldContainer").add(nameField);
+		RootPanel.get("sendButtonContainer").add(sendButton);
+		RootPanel.get("errorLabelContainer").add(errorLabel);
 
-    // Add a handler to close the DialogBox
-    closeButton.addClickHandler(new ClickHandler() {
-      public void onClick(ClickEvent event) {
-        dialogBox.hide();
-        sendButton.setEnabled(true);
-        sendButton.setFocus(true);
-      }
-    });
+		// Focus the cursor on the name field when the app loads
+		nameField.setFocus(true);
+		nameField.selectAll();
 
-    // Create a handler for the sendButton and nameField
-    class MyHandler implements ClickHandler, KeyUpHandler {
-      /**
-       * Fired when the user clicks on the sendButton.
-       */
-      public void onClick(ClickEvent event) {
-        sendNameToServer();
-      }
+		// Create the popup dialog box
+		final DialogBox dialogBox = new DialogBox();
+		dialogBox.setText("Remote Procedure Call");
+		dialogBox.setAnimationEnabled(true);
+		final Button closeButton = new Button("Close");
+		// We can set the id of a widget by accessing its Element
+		closeButton.getElement().setId("closeButton");
+		final Label textToServerLabel = new Label();
+		final HTML serverResponseLabel = new HTML();
+		VerticalPanel dialogVPanel = new VerticalPanel();
+		dialogVPanel.addStyleName("dialogVPanel");
+		dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
+		dialogVPanel.add(textToServerLabel);
+		dialogVPanel.add(new HTML("<br><b>Server replies:</b>"));
+		dialogVPanel.add(serverResponseLabel);
+		dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
+		dialogVPanel.add(closeButton);
+		dialogBox.setWidget(dialogVPanel);
 
-      /**
-       * Fired when the user types in the nameField.
-       */
-      public void onKeyUp(KeyUpEvent event) {
-        if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-          sendNameToServer();
-        }
-      }
-
-      /**
-       * Send the name from the nameField to the server and wait for a response.
-       */
-      private void sendNameToServer() {
-        // First, we validate the input.
-        errorLabel.setText("");
-        String textToServer = nameField.getText();
-        if (!FieldVerifier.isValidName(textToServer)) {
-          errorLabel.setText("Please enter at least four characters");
-          return;
-        }
-
-        // Then, we send the input to the server.
-        sendButton.setEnabled(false);
-        textToServerLabel.setText(textToServer);
-        serverResponseLabel.setText("");
-        
-        
-        CardRequest request = requestFactory.cardRequest();
-        CardProxy newCard = request.create(CardProxy.class);
-        
-        // Card card = new Card(id, type);
-        newCard.setId("42");
-        newCard.setType("42");
-        newCard.setDescription("test card created by GWT");
-        newCard.setCreated(new Date());
-        
-        Request<Void> createReq = request.save(newCard);
-        
-        
-		createReq.fire(new Receiver<Void>() {
-			@Override
-			public void onSuccess(Void arg0) {
-				dialogBox.setText("Remote Procedure Call");
-	            serverResponseLabel.removeStyleName("serverResponseLabelError");
-	            serverResponseLabel.setHTML("new card created, check your database");
-	            dialogBox.center();
-	            closeButton.setFocus(true);
+		// Add a handler to close the DialogBox
+		closeButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				dialogBox.hide();
+				sendButton.setEnabled(true);
+				sendButton.setFocus(true);
 			}
 		});
-    
-//        greetingService.greetServer(textToServer, new AsyncCallback<String>() {
-//          public void onFailure(Throwable caught) {
-//            // Show the RPC error message to the user
-//            dialogBox.setText("Remote Procedure Call - Failure");
-//            serverResponseLabel.addStyleName("serverResponseLabelError");
-//            serverResponseLabel.setHTML(SERVER_ERROR);
-//            dialogBox.center();
-//            closeButton.setFocus(true);
-//          }
-//
-//          public void onSuccess(String result) {
-//            dialogBox.setText("Remote Procedure Call");
-//            serverResponseLabel.removeStyleName("serverResponseLabelError");
-//            serverResponseLabel.setHTML(result);
-//            dialogBox.center();
-//            closeButton.setFocus(true);
-//          }
-//        });
-      }
-    }
 
-    // Add a handler to send the name to the server
-    MyHandler handler = new MyHandler();
-    sendButton.addClickHandler(handler);
-    nameField.addKeyUpHandler(handler);
-  }
+		// Create a handler for the sendButton and nameField
+		class MyHandler implements ClickHandler, KeyUpHandler {
+			/**
+			 * Fired when the user clicks on the sendButton.
+			 */
+			public void onClick(ClickEvent event) {
+				sendNameToServer();
+			}
+
+			/**
+			 * Fired when the user types in the nameField.
+			 */
+			public void onKeyUp(KeyUpEvent event) {
+				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+					sendNameToServer();
+				}
+			}
+
+			/**
+			 * Send the name from the nameField to the server and wait for a
+			 * response.
+			 */
+			private void sendNameToServer() {
+				// First, we validate the input.
+				errorLabel.setText("");
+				String textToServer = nameField.getText();
+				if (!FieldVerifier.isValidName(textToServer)) {
+					errorLabel.setText("Please enter at least four characters");
+					return;
+				}
+
+				// Then, we send the input to the server.
+				sendButton.setEnabled(false);
+				textToServerLabel.setText(textToServer);
+				serverResponseLabel.setText("");
+
+				CardRequest request = requestFactory.cardRequest();
+//				CardProxy newCard = request.create(CardProxy.class);
+//
+//				// Card card = new Card(id, type);
+//				newCard.setId("42");
+//				newCard.setType("42");
+//				newCard.setDescription("test card created by GWT");
+//				newCard.setCreated(new Date());
+
+				Request<CardProxy> createReq = request.createCard("42", "42");
+
+				createReq.fire(new Receiver<CardProxy>() {
+					@Override
+					public void onSuccess(CardProxy arg0) {
+						dialogBox.setText("Remote Procedure Call");
+						serverResponseLabel
+								.removeStyleName("serverResponseLabelError");
+						serverResponseLabel
+								.setHTML("new card created, check your database");
+						dialogBox.center();
+						closeButton.setFocus(true);
+					}
+
+					@Override
+					public void onFailure(ServerFailure error) {
+						// Show the RPC error message to the user
+						 dialogBox.setText("Remote Procedure Call - Failure");
+						 serverResponseLabel.addStyleName("serverResponseLabelError");
+						 serverResponseLabel.setHTML(error.getMessage());
+						 dialogBox.center();
+						 closeButton.setFocus(true);
+					}
+				});
+
+				// greetingService.greetServer(textToServer, new
+				// AsyncCallback<String>() {
+				// public void onFailure(Throwable caught) {
+				// // Show the RPC error message to the user
+				// dialogBox.setText("Remote Procedure Call - Failure");
+				// serverResponseLabel.addStyleName("serverResponseLabelError");
+				// serverResponseLabel.setHTML(SERVER_ERROR);
+				// dialogBox.center();
+				// closeButton.setFocus(true);
+				// }
+				//
+				// public void onSuccess(String result) {
+				// dialogBox.setText("Remote Procedure Call");
+				// serverResponseLabel.removeStyleName("serverResponseLabelError");
+				// serverResponseLabel.setHTML(result);
+				// dialogBox.center();
+				// closeButton.setFocus(true);
+				// }
+				// });
+			}
+		}
+
+		// Add a handler to send the name to the server
+		MyHandler handler = new MyHandler();
+		sendButton.addClickHandler(handler);
+		nameField.addKeyUpHandler(handler);
+	}
 }
