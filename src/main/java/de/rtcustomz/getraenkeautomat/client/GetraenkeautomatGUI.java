@@ -19,7 +19,6 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 
 import de.rtcustomz.getraenkeautomat.shared.CardProxy;
@@ -141,19 +140,16 @@ public class GetraenkeautomatGUI implements EntryPoint {
 				serverResponseLabel.setText("");
 
 				CardRequest request = requestFactory.cardRequest();
-//				CardProxy newCard = request.create(CardProxy.class);
-//
-//				// Card card = new Card(id, type);
-//				newCard.setId("42");
-//				newCard.setType("42");
-//				newCard.setDescription("test card created by GWT");
-//				newCard.setCreated(new Date());
+				CardProxy newCard = request.create(CardProxy.class);
 
-				Request<CardProxy> createReq = request.createCard("42", "42");
-
-				createReq.fire(new Receiver<CardProxy>() {
+				newCard.setId("42");
+				newCard.setType("42");
+				newCard.setDescription("test card created by GWT");
+				newCard.setCreated(new Date());
+				
+				request.save(newCard).fire(new Receiver<Void>() {
 					@Override
-					public void onSuccess(CardProxy arg0) {
+					public void onSuccess(Void arg0) {
 						dialogBox.setText("Remote Procedure Call");
 						serverResponseLabel
 								.removeStyleName("serverResponseLabelError");
@@ -173,26 +169,6 @@ public class GetraenkeautomatGUI implements EntryPoint {
 						 closeButton.setFocus(true);
 					}
 				});
-
-				// greetingService.greetServer(textToServer, new
-				// AsyncCallback<String>() {
-				// public void onFailure(Throwable caught) {
-				// // Show the RPC error message to the user
-				// dialogBox.setText("Remote Procedure Call - Failure");
-				// serverResponseLabel.addStyleName("serverResponseLabelError");
-				// serverResponseLabel.setHTML(SERVER_ERROR);
-				// dialogBox.center();
-				// closeButton.setFocus(true);
-				// }
-				//
-				// public void onSuccess(String result) {
-				// dialogBox.setText("Remote Procedure Call");
-				// serverResponseLabel.removeStyleName("serverResponseLabelError");
-				// serverResponseLabel.setHTML(result);
-				// dialogBox.center();
-				// closeButton.setFocus(true);
-				// }
-				// });
 			}
 		}
 

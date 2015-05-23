@@ -13,7 +13,7 @@ public class UserLocator extends Locator<User, Integer> {
 
 	@Override
 	public User find(Class<? extends User> clazz, Integer id) {
-		return getUserDAO().findById(id);
+		return UserDAO.findById(id);
 	}
 
 	@Override
@@ -34,10 +34,6 @@ public class UserLocator extends Locator<User, Integer> {
 	@Override
 	public Object getVersion(User domainObject) {
 		return domainObject.getVersion();
-	}
-	
-	private UserDAO getUserDAO() {
-		return new UserDAO();
 	}
 
 }

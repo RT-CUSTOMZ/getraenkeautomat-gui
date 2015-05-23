@@ -32,6 +32,12 @@ public class User {
 		this.last_name = last_name;
 	}
 
+	public User(String first_name, String last_name, String nickname) {
+		this.first_name = first_name;
+		this.last_name = last_name;
+		this.nickname = nickname;
+	}
+
 	public String getFirstname() {
 		return first_name;
 	}

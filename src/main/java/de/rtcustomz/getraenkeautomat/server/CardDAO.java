@@ -15,24 +15,7 @@ import de.rtcustomz.getraenkeautomat.util.DatabaseController;
 
 @Singleton
 public class CardDAO {
-//	@Resource
-//	private static UserTransaction utx;
-	
 	private static EntityManager em = DatabaseController.createEntityManager();
-	
-//	@PostConstruct
-//	public void init() {
-//		em = DatabaseController.createEntityManager();
-//	}
-	
-//	@PreDestroy
-//	public void destroy() {
-//		em.close();
-//	}
-	
-//	public CardDAO() {
-//		em = DatabaseController.createEntityManager();
-//	}
 	
 	public static Long countCards() {
 		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM cards;", Long.class);
@@ -57,16 +40,12 @@ public class CardDAO {
 	
 	public static void save(Card card) throws Exception {
 		try {
-//			utx.begin();
 			em.getTransaction().begin();
-			em.joinTransaction();
 			em.persist(card);
 			em.flush();
-//			utx.commit();
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			try {
-//				utx.rollback();
 				em.getTransaction().rollback();
 			} catch (Exception ignore) {}
 			throw e;
@@ -75,19 +54,15 @@ public class CardDAO {
 	
 	public static Card createCard(String id, String type) throws Exception {
 		try {
-//			utx.begin();
 			em.getTransaction().begin();
-			em.joinTransaction();
 			Card card = new Card(id, type);
 			em.persist(card);
 			em.flush();
-//			utx.commit();
 			em.getTransaction().commit();
 			
 			return card;
 		} catch (Exception e) {
 			try {
-//				utx.rollback();
 				em.getTransaction().rollback();
 			} catch (Exception ignore) {}
 			throw e;
@@ -96,16 +71,12 @@ public class CardDAO {
 
 	public static void delete(Card card) throws Exception {
 		try {
-//			utx.begin();
 			em.getTransaction().begin();
-			em.joinTransaction();
 			em.remove(card);
 			em.flush();
-//			utx.commit();
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			try {
-//				utx.rollback();
 				em.getTransaction().rollback();
 			} catch (Exception ignore) {}
 			throw e;

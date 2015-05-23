@@ -6,10 +6,9 @@ import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.RequestContext;
 import com.google.web.bindery.requestfactory.shared.Service;
 
-import de.rtcustomz.getraenkeautomat.server.ModelServiceLocator;
 import de.rtcustomz.getraenkeautomat.server.UserDAO;
 
-@Service(value = UserDAO.class, locator = ModelServiceLocator.class)
+@Service(UserDAO.class)
 public interface UserRequest extends RequestContext {
 	Request<Long> countUsers();
 	
