@@ -7,7 +7,7 @@
 
 	<listener>
 		<listener-class>
-			de.rtcustomz.getraenkeautomat.util.DatabaseController
+			de.rtcustomz.getraenkeautomat.server.util.DatabaseController
 		</listener-class>
 	</listener>
 
@@ -23,7 +23,7 @@
 		<init-param>
 			<param-name>jersey.config.server.provider.packages</param-name>
 			<param-value>
-				de.rtcustomz.getraenkeautomat.resources
+				de.rtcustomz.getraenkeautomat.server
 			</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>

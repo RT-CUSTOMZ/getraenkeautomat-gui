@@ -12,7 +12,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry excluding="**" kind="src" output="target/getraenkeautomat-0.0.1-SNAPSHOT/WEB-INF/classes" path="src/main/resources">
+	<classpathentry excluding="" kind="src" output="target/getraenkeautomat-0.0.1-SNAPSHOT/WEB-INF/classes" path="src/main/resources">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>

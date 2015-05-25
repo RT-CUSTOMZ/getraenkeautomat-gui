@@ -1,7 +1,5 @@
 package de.rtcustomz.getraenkeautomat.client;
 
-import java.util.Date;
-
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -9,6 +7,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -18,10 +17,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 
-import de.rtcustomz.getraenkeautomat.shared.CardRequest;
 import de.rtcustomz.getraenkeautomat.shared.FieldVerifier;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 
@@ -33,16 +29,16 @@ public class GetraenkeautomatGUI implements EntryPoint {
 	 * The message displayed to the user when the server cannot be reached or
 	 * returns an error.
 	 */
-//	 private static final String SERVER_ERROR = "An error occurred while "
-//	 + "attempting to contact the server. Please check your network "
-//	 + "connection and try again.";
+	 private static final String SERVER_ERROR = "An error occurred while "
+	 + "attempting to contact the server. Please check your network "
+	 + "connection and try again.";
 
 	/**
 	 * Create a remote service proxy to talk to the server-side Greeting
 	 * service.
 	 */
-	// private final GreetingServiceAsync greetingService =
-	// GWT.create(GreetingService.class);
+	 private final GreetingServiceAsync greetingService =
+	 GWT.create(GreetingService.class);
 
 	private final Messages messages = GWT.create(Messages.class);
 
@@ -53,6 +49,7 @@ public class GetraenkeautomatGUI implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		MyResources.INSTANCE.css().ensureInjected();
 		final Button sendButton = new Button(messages.sendButton());
 		final TextBox nameField = new TextBox();
 		nameField.setText(messages.nameField());
@@ -138,36 +135,56 @@ public class GetraenkeautomatGUI implements EntryPoint {
 				textToServerLabel.setText(textToServer);
 				serverResponseLabel.setText("");
 
-				CardRequest request = requestFactory.cardRequest();
-				CardProxy newCard = request.create(CardProxy.class);
-
-				newCard.setId("42");
-				newCard.setType("42");
-				newCard.setDescription("test card created by GWT");
-				newCard.setCreated(new Date());
+//				CardRequest request = requestFactory.cardRequest();
+//				CardProxy newCard = request.create(CardProxy.class);
+//
+//				newCard.setId("42");
+//				newCard.setType("42");
+//				newCard.setDescription("test card created by GWT");
+//				newCard.setCreated(new Date());
+//				
+//				request.save(newCard).fire(new Receiver<Void>() {
+//					@Override
+//					public void onSuccess(Void arg0) {
+//						dialogBox.setText("Remote Procedure Call");
+//						serverResponseLabel
+//								.removeStyleName("serverResponseLabelError");
+//						serverResponseLabel
+//								.setHTML("new card created, check your database");
+//						dialogBox.center();
+//						closeButton.setFocus(true);
+//					}
+//
+//					@Override
+//					public void onFailure(ServerFailure error) {
+//						// Show the RPC error message to the user
+//						 dialogBox.setText("Remote Procedure Call - Failure");
+//						 serverResponseLabel.addStyleName("serverResponseLabelError");
+//						 serverResponseLabel.setHTML(error.getMessage());
+//						 dialogBox.center();
+//						 closeButton.setFocus(true);
+//					}
+//				});
 				
-				request.save(newCard).fire(new Receiver<Void>() {
-					@Override
-					public void onSuccess(Void arg0) {
-						dialogBox.setText("Remote Procedure Call");
-						serverResponseLabel
-								.removeStyleName("serverResponseLabelError");
-						serverResponseLabel
-								.setHTML("new card created, check your database");
-						dialogBox.center();
-						closeButton.setFocus(true);
-					}
-
-					@Override
-					public void onFailure(ServerFailure error) {
-						// Show the RPC error message to the user
-						 dialogBox.setText("Remote Procedure Call - Failure");
-						 serverResponseLabel.addStyleName("serverResponseLabelError");
-						 serverResponseLabel.setHTML(error.getMessage());
-						 dialogBox.center();
-						 closeButton.setFocus(true);
-					}
-				});
+				 greetingService.greetServer(textToServer, new
+				 AsyncCallback<String>() {
+				 public void onFailure(Throwable caught) {
+				 // Show the RPC error message to the user
+				 dialogBox.setText("Remote Procedure Call - Failure");
+				 serverResponseLabel.addStyleName("serverResponseLabelError");
+				 serverResponseLabel.setHTML(SERVER_ERROR);
+				 dialogBox.center();
+				 closeButton.setFocus(true);
+				 }
+				
+				 public void onSuccess(String result) {
+				 dialogBox.setText("Remote Procedure Call");
+				 serverResponseLabel.removeStyleName("serverResponseLabelError");
+				 serverResponseLabel.setHTML(result);
+				 dialogBox.center();
+				 closeButton.setFocus(true);
+				 }
+				 });
 			}
 		}
 
