@@ -1,34 +1,85 @@
-/** Add css rules here for your application. */
+body {
+	background-color: black;
+	color: #555;
+	font-family: 'Ubuntu';
+}
 
-
-/** Example rules used by the template application (remove for your app) */
 h1 {
-  font-size: 2em;
-  font-weight: bold;
-  color: #777777;
-  margin: 40px 0px 70px;
-  text-align: center;
+	font-weight: bold;
 }
 
-.sendButton {
-  display: block;
-  font-size: 16pt;
+a {
+    color: #ff7b0d;
+    text-decoration: none;
 }
 
-/** Most GWT widgets already have a style name defined */
-.gwt-DialogBox {
-  width: 400px;
+a:hover {
+    color: #ffa84c;
+    text-decoration: none;
 }
 
-.dialogVPanel {
-  margin: 5px;
+#wrapper {
+	max-width: 980px;
+	margin:0px auto;
 }
 
-.serverResponseLabelError {
-  color: red;
+.subheader {
+	margin-top: 8px;
+	margin-bottom: 20px;
 }
 
-/** Set ids using widget.getElement().setId("idOfElement") */
-#closeButton {
-  margin: 15px 6px 6px;
+h1.description {
+	color: white;
+	font-size: 12px;
+}
+
+.header_wrap {
+	background-color: #f8f8f8;
+	border-radius: 6px 6px 0 0;
+	padding: 26px 20px 28px;
+}
+
+#navigation {
+	background: #ff7b0d; /* Old browsers */
+	background: -moz-linear-gradient(top, #ffa84c 0%, #ff7b0d 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffa84c), color-stop(100%,#ff7b0d)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top, #ffa84c 0%,#ff7b0d 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top, #ffa84c 0%,#ff7b0d 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #ffa84c 0%,#ff7b0d 100%); /* IE10+ */
+	background: linear-gradient(top, #ffa84c 0%,#ff7b0d 100%); /* W3C */
+	position: absolute;
+	width: 100%;
+}
+
+#navigation ul {
+	list-style: none outside none;
+	margin: 0;
+	padding: 0;
+}
+
+#navigation ul > li {
+	float: left;
+	margin: 0 7px;
+	padding: 15px 0;
+}
+
+#navigation ul > li > a {
+	font-weight: 400;
+	color: white;
+	cursor: pointer;
+	font-size: 16px;
+	padding: 5px;
+	line-height: 20px;
+}
+
+#RTZEIT {
+    font: 4em Andale Mono,monospace;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: hidden;
+    padding: 16px;
+    position: absolute;
+    text-align: right;
+    vertical-align: bottom;
+    width: 60%;
 }
