@@ -1,9 +1,10 @@
 package de.rtcustomz.getraenkeautomat.client;
 
+import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 
 // TODO: use HeaderPanel instead? => http://www.gwtproject.org/javadoc/latest/com/google/gwt/user/client/ui/HeaderPanel.html
@@ -14,7 +15,11 @@ public class Header extends Composite {
 		FlowPanel headerWrap = new FlowPanel();
 		
 		subHeader.addStyleName("subheader");
-		subHeader.add(new HTML("<h1 class='description'>Die Anlaufstelle für Projekte am Campus Bocholt</h1>"));
+		
+		HTMLPanel description = new HTMLPanel(HeadingElement.TAG_H1, "Die Anlaufstelle für Projekte am Campus Bocholt");
+		description.setStyleName("description");
+		
+		subHeader.add(description);
 		
 		headerWrap.addStyleName("header_wrap");
 		

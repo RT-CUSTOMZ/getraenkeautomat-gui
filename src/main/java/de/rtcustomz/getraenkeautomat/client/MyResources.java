@@ -13,9 +13,6 @@ public interface MyResources extends ClientBundle {
 	@Source("default.css")
 	public CssResource css();
 
-//	@Source("applicationBackground.png")
-//	DataResource applicationBackground();
-
 	@Source("header_logo.png")
 	ImageResource logo();
 }

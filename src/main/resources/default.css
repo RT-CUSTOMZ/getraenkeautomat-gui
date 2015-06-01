@@ -1,7 +1,26 @@
+html, body, div, span, iframe, h1, h2, h3, h4, h5, h6, p, pre, a, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, details {
+  border: 0 none;
+  font: inherit;
+  margin: 0;
+  padding: 0;
+  vertical-align: baseline;
+}
+
+p, li {
+	line-height: 17px;
+}
+
+ul {
+	list-style: none outside none;
+	margin: 0;
+	padding: 0;
+}
+
 body {
 	background-color: black;
 	color: #555;
 	font-family: 'Ubuntu';
+	font-size: 12px;
 }
 
 h1 {
@@ -47,14 +66,8 @@ h1.description {
 	background: -o-linear-gradient(top, #ffa84c 0%,#ff7b0d 100%); /* Opera 11.10+ */
 	background: -ms-linear-gradient(top, #ffa84c 0%,#ff7b0d 100%); /* IE10+ */
 	background: linear-gradient(top, #ffa84c 0%,#ff7b0d 100%); /* W3C */
-	position: absolute;
+	min-height: 50px;
 	width: 100%;
-}
-
-#navigation ul {
-	list-style: none outside none;
-	margin: 0;
-	padding: 0;
 }
 
 #navigation ul > li {
@@ -63,7 +76,7 @@ h1.description {
 	padding: 15px 0;
 }
 
-#navigation ul > li > a {
+#navigation a {
 	font-weight: 400;
 	color: white;
 	cursor: pointer;
@@ -72,8 +85,42 @@ h1.description {
 	line-height: 20px;
 }
 
+#navigation li :hover {
+	color: #eee;
+}
+
+.clear {
+	clear: both;
+}
+
+#footer {
+	height: 216px;
+	background: none repeat scroll 0 0 #222;
+	border-radius: 0 0 6px 6px;
+	padding: 15px;
+}
+
+.kontakt {
+	float: left;
+	width: 21.679%;
+	color: #ccc;
+}
+
+.links {
+	float: left;
+	margin-left: 4.4%;
+}
+
+.title {
+	border-bottom: 1px solid #333;
+	color: #eee;
+	font-size: 14px;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
 #RTZEIT {
-    font: 4em Andale Mono,monospace;
+    font: 5em Andale Mono,monospace;
     margin-left: auto;
     margin-right: auto;
     overflow: hidden;

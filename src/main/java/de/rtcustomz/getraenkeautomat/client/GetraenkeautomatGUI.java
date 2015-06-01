@@ -24,19 +24,24 @@ public class GetraenkeautomatGUI implements EntryPoint {
 		MyResources.INSTANCE.css().ensureInjected();
 		
 		FlowPanel wrapper = new FlowPanel();
+		FlowPanel clear = new FlowPanel();
+		clear.setStyleName("clear");
 
 		Header header = new Header();
 		Navigation nav = new Navigation();
+		Footer footer = new Footer();
 		
-		FlowPanel wrapHeader = new FlowPanel();
-    	wrapHeader.add(header);
-    	
-    	FlowPanel wrapNav = new FlowPanel();
-    	wrapNav.add(nav);
+//		FlowPanel wrapHeader = new FlowPanel();
+//    	wrapHeader.add(header);
+//    	
+//    	FlowPanel wrapNav = new FlowPanel();
+//    	wrapNav.add(nav);
     	
 		wrapper.getElement().setId("wrapper");
     	wrapper.add(header);
     	wrapper.add(nav);
+    	wrapper.add(clear);
+    	wrapper.add(footer);
     	
     	RootLayoutPanel.get().add(wrapper);
     	
