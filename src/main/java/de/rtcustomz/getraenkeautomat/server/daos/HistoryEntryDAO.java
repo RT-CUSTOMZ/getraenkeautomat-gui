@@ -16,17 +16,17 @@ public class HistoryEntryDAO {
 	private static EntityManager em = DatabaseController.createEntityManager();
 	
 	public static Long countHistoryEntries() {
-		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM history;", Long.class);
+		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM HistoryEntry", Long.class);
 		return q.getSingleResult();
 	}
 	
 	public static List<HistoryEntry> findAllHistoryEntries() {
-		TypedQuery<HistoryEntry> q = em.createQuery("FROM history;", HistoryEntry.class);
+		TypedQuery<HistoryEntry> q = em.createQuery("FROM HistoryEntry", HistoryEntry.class);
 		return q.getResultList();
 	}
 	
 	public static List<HistoryEntry> findHistoryEntries(int firstResult, int maxResults) {
-		TypedQuery<HistoryEntry> q = em.createQuery("FROM history;", HistoryEntry.class);
+		TypedQuery<HistoryEntry> q = em.createQuery("FROM HistoryEntry", HistoryEntry.class);
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
@@ -70,6 +70,7 @@ public class HistoryEntryDAO {
 	public static void delete(HistoryEntry historyEntry) throws Exception {
 		try {
 			em.getTransaction().begin();
+			historyEntry=em.find(HistoryEntry.class, historyEntry.getId());
 			em.remove(historyEntry);
 			em.flush();
 			em.getTransaction().commit();

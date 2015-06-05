@@ -14,17 +14,17 @@ public class UserDAO {
 	private static EntityManager em = DatabaseController.createEntityManager();
 	
 	public static Long countUsers() {
-		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM users;", Long.class);
+		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM User", Long.class);
 		return q.getSingleResult();
 	}
 	
 	public static List<User> findAllUsers() {
-		TypedQuery<User> q = em.createQuery("FROM users;", User.class);
+		TypedQuery<User> q = em.createQuery("FROM User", User.class);
 		return q.getResultList();
 	}
 	
 	public static List<User> findUserEntries(int firstResult, int maxResults) {
-		TypedQuery<User> q = em.createQuery("FROM users;", User.class);
+		TypedQuery<User> q = em.createQuery("FROM User", User.class);
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
@@ -68,6 +68,7 @@ public class UserDAO {
 	public static void delete(User user) throws Exception {
 		try {
 			em.getTransaction().begin();
+			user=em.find(User.class, user.getId());
 			em.remove(user);
 			em.flush();
 			em.getTransaction().commit();

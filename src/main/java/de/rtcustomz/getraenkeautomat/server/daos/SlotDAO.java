@@ -14,17 +14,17 @@ public class SlotDAO {
 	private static EntityManager em = DatabaseController.createEntityManager();
 	
 	public static Long countSlots() {
-		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM slots;", Long.class);
+		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM Slot", Long.class);
 		return q.getSingleResult();
 	}
 	
 	public static List<Slot> findAllSlots() {
-		TypedQuery<Slot> q = em.createQuery("FROM slots;", Slot.class);
+		TypedQuery<Slot> q = em.createQuery("FROM Slot", Slot.class);
 		return q.getResultList();
 	}
 	
 	public static List<Slot> findSlotEntries(int firstResult, int maxResults) {
-		TypedQuery<Slot> q = em.createQuery("FROM slots;", Slot.class);
+		TypedQuery<Slot> q = em.createQuery("FROM Slot", Slot.class);
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
@@ -68,6 +68,7 @@ public class SlotDAO {
 	public static void delete(Slot slot) throws Exception {
 		try {
 			em.getTransaction().begin();
+			slot=em.find(Slot.class, slot.getId());
 			em.remove(slot);
 			em.flush();
 			em.getTransaction().commit();

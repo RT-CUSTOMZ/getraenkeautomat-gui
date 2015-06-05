@@ -14,17 +14,17 @@ public class CardDAO {
 	private static EntityManager em = DatabaseController.createEntityManager();
 	
 	public static Long countCards() {
-		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM cards;", Long.class);
+		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM Card", Long.class);
 		return q.getSingleResult();
 	}
 	
 	public static List<Card> findAllCards() {
-		TypedQuery<Card> q = em.createQuery("FROM cards;", Card.class);
+		TypedQuery<Card> q = em.createQuery("FROM Card", Card.class);
 		return q.getResultList();
 	}
 	
 	public static List<Card> findCardEntries(int firstResult, int maxResults) {
-		TypedQuery<Card> q = em.createQuery("FROM cards;", Card.class);
+		TypedQuery<Card> q = em.createQuery("FROM Card", Card.class);
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
@@ -68,6 +68,7 @@ public class CardDAO {
 	public static void delete(Card card) throws Exception {
 		try {
 			em.getTransaction().begin();
+			card=em.find(Card.class, card.getId());
 			em.remove(card);
 			em.flush();
 			em.getTransaction().commit();
