@@ -11,30 +11,43 @@ import de.rtcustomz.getraenkeautomat.server.util.DatabaseController;
 
 @Singleton
 public class CardDAO {
-	private static EntityManager em = DatabaseController.createEntityManager();
+	//private static EntityManager em = DatabaseController.createEntityManager();
 	
 	public static Long countCards() {
+		EntityManager em = DatabaseController.createEntityManager();
 		TypedQuery<Long> q = em.createQuery("SELECT COUNT(*) FROM Card", Long.class);
-		return q.getSingleResult();
+		Long count = q.getSingleResult();
+		em.close();
+		return count;
 	}
 	
 	public static List<Card> findAllCards() {
+		EntityManager em = DatabaseController.createEntityManager();
 		TypedQuery<Card> q = em.createQuery("FROM Card", Card.class);
-		return q.getResultList();
+		List<Card> cards = q.getResultList();
+		em.close();
+		return cards;
 	}
 	
 	public static List<Card> findCardEntries(int firstResult, int maxResults) {
+		EntityManager em = DatabaseController.createEntityManager();
 		TypedQuery<Card> q = em.createQuery("FROM Card", Card.class);
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
-		return q.getResultList();
+		List<Card> cards = q.getResultList();
+		em.close();
+		return cards;
 	}
 	
 	public static Card findById(String id) {
-		return em.find(Card.class, id);
+		EntityManager em = DatabaseController.createEntityManager();
+		Card card = em.find(Card.class, id);
+		em.close();
+		return card;
 	}
 	
 	public static void save(Card card) throws Exception {
+		EntityManager em = DatabaseController.createEntityManager();
 		try {
 			em.getTransaction().begin();
 			em.persist(card);
@@ -46,9 +59,13 @@ public class CardDAO {
 			} catch (Exception ignore) {}
 			throw e;
 		}
+		finally {
+			em.close();
+		}
 	}
 	
 	public static Card createCard(String id, String type) throws Exception {
+		EntityManager em = DatabaseController.createEntityManager();
 		try {
 			em.getTransaction().begin();
 			Card card = new Card(id, type);
@@ -63,9 +80,13 @@ public class CardDAO {
 			} catch (Exception ignore) {}
 			throw e;
 		}
+		finally {
+			em.close();
+		}
 	}
 
 	public static void delete(Card card) throws Exception {
+		EntityManager em = DatabaseController.createEntityManager();
 		try {
 			em.getTransaction().begin();
 			card=em.find(Card.class, card.getId());
@@ -77,6 +98,9 @@ public class CardDAO {
 				em.getTransaction().rollback();
 			} catch (Exception ignore) {}
 			throw e;
+		}
+		finally {
+			em.close();
 		}
 	}
 }
