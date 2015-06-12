@@ -1,7 +1,9 @@
 package de.rtcustomz.getraenkeautomat.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 public class GetraenkeautomatGUI implements EntryPoint {
@@ -27,6 +29,14 @@ public class GetraenkeautomatGUI implements EntryPoint {
     	wrapper.add(header);
     	wrapper.add(nav);
     	wrapper.add(clear);
+    	
+    	FlowPanel content = new FlowPanel();
+    	content.getElement().setId("content");
+    	
+    	// TODO: add content to contentFlowPanel, e.g.:
+    	content.add(new HTMLPanel(HeadingElement.TAG_H1, "Hier kommt der Content rein!!!"));
+    	
+    	wrapper.add(content);
     	wrapper.add(footer);
     	
     	RootLayoutPanel.get().add(wrapper);

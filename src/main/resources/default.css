@@ -27,7 +27,7 @@ h1 {
 	font-weight: bold;
 }
 
-a {
+a, a:visited {
     color: #ff7b0d;
     text-decoration: none;
 }
@@ -93,8 +93,13 @@ h1.description {
 	clear: both;
 }
 
+#content {
+	background: #FFF none repeat scroll 0% 0%;
+	padding: 30px;
+}
+
 #footer {
-	height: 216px;
+	height: 150px;
 	background: none repeat scroll 0 0 #222;
 	border-radius: 0 0 6px 6px;
 	padding: 15px;
