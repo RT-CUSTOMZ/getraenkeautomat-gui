@@ -2,7 +2,6 @@ package de.rtcustomz.getraenkeautomat.client;
 
 import java.util.Date;
 
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -12,6 +11,7 @@ public class RTClock extends Timer implements IsWidget {
 //	private final char[] rtsigns = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '∮' , 'Ä', 'Ö', 'Ü', 'ß', '@' };
 	private final char[] rtsigns = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ∮ÄÖÜß@".toCharArray();
 	private final long startOfRT = 942930000;	// 18.11.1999 13:00
+	
 	private Widget rtzeit;
 	
 	public RTClock(String id) {
@@ -29,8 +29,7 @@ public class RTClock extends Timer implements IsWidget {
 		long RT42_timestamp = now.getTime()/1000 - startOfRT;
 		
 		String rt42time = getRT42String(RT42_timestamp);
-		Document.get().getElementById("RTZEIT").setInnerHTML(rt42time);
-		//rtzeit.setIn
+		rtzeit.getElement().setInnerHTML(rt42time);
 	}
 
 	private String getRT42String(long rT42_timestamp) {

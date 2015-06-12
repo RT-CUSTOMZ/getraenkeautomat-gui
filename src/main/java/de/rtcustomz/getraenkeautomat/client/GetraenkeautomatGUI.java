@@ -7,7 +7,7 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 public class GetraenkeautomatGUI implements EntryPoint {
 	// private final Messages messages = GWT.create(Messages.class);
 
-	//private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	// private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 
 	/**
 	 * This is the entry point method.
