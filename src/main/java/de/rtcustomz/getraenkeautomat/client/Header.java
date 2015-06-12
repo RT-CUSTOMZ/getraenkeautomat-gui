@@ -8,7 +8,7 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 
 // TODO: use HeaderPanel instead? => http://www.gwtproject.org/javadoc/latest/com/google/gwt/user/client/ui/HeaderPanel.html
-public class Header extends Composite {
+public class Header extends Composite {	
 	public Header() {
 		FlowPanel mainPanel = new FlowPanel();
 		FlowPanel subHeader = new FlowPanel();
@@ -29,16 +29,19 @@ public class Header extends Composite {
 		Anchor image = new Anchor("", "http://42volt.de");
 		image.setHTML(logo.getElement().getString());
 		
-		Anchor rtzeit = new Anchor("RT Zeit", "http://42volt.de/?page_id=34");
-		rtzeit.getElement().setId("RTZEIT");
+		RTClock rtclock = new RTClock("RTZEIT");
 		
 		headerWrap.add(image);
-		headerWrap.add(rtzeit);
+		headerWrap.add(rtclock);
 		
 		mainPanel.add(subHeader);
 		mainPanel.add(headerWrap);
 		
 		initWidget(mainPanel);
+		
+		// rtclock should be refresehed every second
+		rtclock.scheduleRepeating(1000);
+		
 		getElement().setId("header");
 	}
 }
