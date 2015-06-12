@@ -38,10 +38,6 @@ public class Header extends Composite {
 		mainPanel.add(headerWrap);
 		
 		initWidget(mainPanel);
-		
-		// rtclock should be refresehed every second
-		rtclock.scheduleRepeating(1000);
-		
 		getElement().setId("header");
 	}
 }

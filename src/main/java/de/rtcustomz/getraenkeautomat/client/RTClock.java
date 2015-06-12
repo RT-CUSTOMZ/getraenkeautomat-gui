@@ -17,6 +17,8 @@ public class RTClock extends Timer implements IsWidget {
 	public RTClock(String id) {
 		rtzeit = new Anchor("RT Zeit", "http://42volt.de/?page_id=34");
 		rtzeit.getElement().setId(id);
+		
+		this.scheduleRepeating(1000);
 	}
 	
 	@Override
