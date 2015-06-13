@@ -1,23 +1,24 @@
 package de.rtcustomz.getraenkeautomat.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.RootLayoutPanel;
-import com.google.gwt.user.client.ui.SimpleLayoutPanel;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.gwt.charts.client.ChartLoader;
 import com.googlecode.gwt.charts.client.ChartPackage;
 import com.googlecode.gwt.charts.client.ColumnType;
 import com.googlecode.gwt.charts.client.DataTable;
 import com.googlecode.gwt.charts.client.corechart.PieChart;
+import com.googlecode.gwt.charts.client.corechart.PieChartOptions;
+import com.googlecode.gwt.charts.client.options.ChartArea;
 
 public class GetraenkeautomatGUI implements EntryPoint {
 	// private final Messages messages = GWT.create(Messages.class);
 
 	// private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	
-	private SimpleLayoutPanel layoutPanel;
+	private SimplePanel panel;
     private PieChart pieChart;
 
 	/**
@@ -44,7 +45,7 @@ public class GetraenkeautomatGUI implements EntryPoint {
     	
     	
     	
-    	content.add(getSimpleLayoutPanel());
+    	content.add(getSimplePanel());
 
         // Create the API Loader
         ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);
@@ -52,7 +53,7 @@ public class GetraenkeautomatGUI implements EntryPoint {
 
             @Override
             public void run() {
-                getSimpleLayoutPanel().setWidget(getPieChart());
+                getSimplePanel().setWidget(getPieChart());
                 drawPieChart();
             }
         });
@@ -66,7 +67,7 @@ public class GetraenkeautomatGUI implements EntryPoint {
     	wrapper.add(content);
     	wrapper.add(footer);
     	
-    	RootLayoutPanel.get().add(wrapper);
+    	RootPanel.get().add(wrapper);
 		
 //		final EventBus eventBus = new SimpleEventBus();
 //		requestFactory.initialize(eventBus);
@@ -103,11 +104,12 @@ public class GetraenkeautomatGUI implements EntryPoint {
 //		});
 	}
 	
-	private SimpleLayoutPanel getSimpleLayoutPanel() {
-        if (layoutPanel == null) {
-            layoutPanel = new SimpleLayoutPanel();
+	private SimplePanel getSimplePanel() {
+        if (panel == null) {
+            panel = new SimplePanel();
+            panel.getElement().setId("chart");
         }
-        return layoutPanel;
+        return panel;
 	}
 	
 	private Widget getPieChart() {
@@ -132,8 +134,18 @@ public class GetraenkeautomatGUI implements EntryPoint {
 		dataTable.setValue(2, 1, 3);
 		dataTable.setValue(3, 1, 2);
 		
+//		ChartArea area = ChartArea.create();
+//		area.setLeft(0);
+//		area.setTop(0);
+//		area.setWidth("50%");
+//		area.setHeight("50%");
+//		
+//		
+//		PieChartOptions options = PieChartOptions.create();
+//		options.setChartArea(area);
+		
 		// Draw the chart
-		pieChart.draw(dataTable);
+		pieChart.draw(dataTable/*, options*/);
 	}
 
 }
