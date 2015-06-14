@@ -50,7 +50,7 @@ public class CardDAO {
 		EntityManager em = DatabaseController.createEntityManager();
 		try {
 			em.getTransaction().begin();
-			em.persist(card);
+			em.merge(card);
 			em.flush();
 			em.getTransaction().commit();
 		} catch (Exception e) {
