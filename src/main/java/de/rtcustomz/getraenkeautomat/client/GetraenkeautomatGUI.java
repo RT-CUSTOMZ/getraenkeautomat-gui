@@ -1,30 +1,56 @@
 package de.rtcustomz.getraenkeautomat.client;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.shared.EventBus;
+import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ChartLoader;
 import com.googlecode.gwt.charts.client.ChartPackage;
 import com.googlecode.gwt.charts.client.ColumnType;
 import com.googlecode.gwt.charts.client.DataTable;
 import com.googlecode.gwt.charts.client.corechart.PieChart;
-import com.googlecode.gwt.charts.client.corechart.PieChartOptions;
-import com.googlecode.gwt.charts.client.options.ChartArea;
+
+import de.rtcustomz.getraenkeautomat.client.proxies.HistoryEntryProxy;
+import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
+import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
+import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
+import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
 public class GetraenkeautomatGUI implements EntryPoint {
 	// private final Messages messages = GWT.create(Messages.class);
 
-	// private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	private final EventBus eventBus = new SimpleEventBus();
 	
 	private SimplePanel panel;
     private PieChart pieChart;
+    private List<HistoryEntryProxy> history;
+    private List<SlotProxy> slots;
+    
+    private int retry;
 
 	/**
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
+		requestFactory.initialize(eventBus);
+		
+		getSlots();
+		getHistory();
+		retry = 0;
+		
+		
 		MyResources.INSTANCE.css().ensureInjected();
 		
 		FlowPanel wrapper = new FlowPanel();
@@ -43,68 +69,49 @@ public class GetraenkeautomatGUI implements EntryPoint {
     	FlowPanel content = new FlowPanel();
     	content.getElement().setId("content");
     	
-    	
-    	
-    	content.add(getSimplePanel());
+    	content.add(getChartPanel());
 
-        // Create the API Loader
-        ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);
-        chartLoader.loadApi(new Runnable() {
-
-            @Override
-            public void run() {
-                getSimplePanel().setWidget(getPieChart());
-                drawPieChart();
-            }
-        });
-
-    	
-    	
-    	
-    	// TODO: add content to contentFlowPanel, e.g.:
-    	// content.add(new HTMLPanel(HeadingElement.TAG_H1, "Hier kommt der Content rein!!!"));
-    	
     	wrapper.add(content);
     	wrapper.add(footer);
     	
     	RootPanel.get().add(wrapper);
-		
-//		final EventBus eventBus = new SimpleEventBus();
-//		requestFactory.initialize(eventBus);
-
-//		CardRequest request = requestFactory.cardRequest();
-//		CardProxy newCard = request.create(CardProxy.class);
-//
-//		newCard.setId("42");
-//		newCard.setType("42");
-//		newCard.setDescription("test card created by GWT");
-//		newCard.setCreated(new Date());
-//		
-//		request.save(newCard).fire(new Receiver<Void>() {
-//			@Override
-//			public void onSuccess(Void arg0) {
-//				dialogBox.setText("Remote Procedure Call");
-//				serverResponseLabel
-//						.removeStyleName("serverResponseLabelError");
-//				serverResponseLabel
-//						.setHTML("new card created, check your database");
-//				dialogBox.center();
-//				closeButton.setFocus(true);
-//			}
-//
-//			@Override
-//			public void onFailure(ServerFailure error) {
-//				// Show the RPC error message to the user
-//				 dialogBox.setText("Remote Procedure Call - Failure");
-//				 serverResponseLabel.addStyleName("serverResponseLabelError");
-//				 serverResponseLabel.setHTML(error.getMessage());
-//				 dialogBox.center();
-//				 closeButton.setFocus(true);
-//			}
-//		});
+    	
+        // Create the API Loader
+        ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);
+        chartLoader.loadApi(new Runnable() {
+            @Override
+            public void run() {
+                getChartPanel().setWidget(getPieChart());
+                drawPieChart();
+            }
+        });
 	}
 	
-	private SimplePanel getSimplePanel() {
+	private void getHistory() {
+		HistoryRequest historyrequest = requestFactory.historyRequest();
+		historyrequest.findAllHistoryEntries().with("slot").fire(new Receiver<List<HistoryEntryProxy>>() {
+
+			@Override
+			public void onSuccess(List<HistoryEntryProxy> response) {
+				history = response;
+			}
+			
+		});
+	}
+
+	private void getSlots() {
+		SlotRequest slotrequest = requestFactory.slotRequest();
+    	slotrequest.findAllSlots().fire(new Receiver<List<SlotProxy>>() {
+
+			@Override
+			public void onSuccess(List<SlotProxy> response) {
+				slots = response;
+			}
+			
+		});
+	}
+
+	private SimplePanel getChartPanel() {
         if (panel == null) {
             panel = new SimplePanel();
             panel.getElement().setId("chart");
@@ -120,19 +127,53 @@ public class GetraenkeautomatGUI implements EntryPoint {
 	}
 	
 	private void drawPieChart() {
+		// if history or slots aren't loaded yet, retry in 500 miliseconds again (max 10 times)
+		if((history == null || slots == null) && retry <= 10) {
+			// TODO: ladebalken
+			Timer timer = new Timer() {
+				@Override
+				public void run() {
+					drawPieChart();
+				}
+			};
+			timer.schedule(500);
+			retry++;
+		}
+		
+		HashMap<String, Integer> drinksObtained = new HashMap<>();
+		
+		// TODO: perhaps SQL statement for that?
+		// count how much drinks has been obtained from every slot
+		Iterator<HistoryEntryProxy> it = history.iterator();
+		while(it.hasNext()) {
+			HistoryEntryProxy historyEntry = it.next();
+			
+			String drink = historyEntry.getSlot().getDrink();
+			
+			Integer count = drinksObtained.get(drink);
+            if (count == null)
+                count = 0;
+            count++;
+            
+            drinksObtained.put(drink, count);
+		}
+		
 		// Prepare the data
 		DataTable dataTable = DataTable.create();
-		dataTable.addColumn(ColumnType.STRING, "Name");
-		dataTable.addColumn(ColumnType.NUMBER, "Donuts eaten");
-		dataTable.addRows(4);
-		dataTable.setValue(0, 0, "Michael");
-		dataTable.setValue(1, 0, "Elisa");
-		dataTable.setValue(2, 0, "Robert");
-		dataTable.setValue(3, 0, "John");
-		dataTable.setValue(0, 1, 5);
-		dataTable.setValue(1, 1, 7);
-		dataTable.setValue(2, 1, 3);
-		dataTable.setValue(3, 1, 2);
+		dataTable.addColumn(ColumnType.STRING, "Drink");
+		dataTable.addColumn(ColumnType.NUMBER, "obtained");
+		
+		// add so much entries in PieChart as slots exists
+		dataTable.addRows(slots.size());
+		for (int i = 0; i < slots.size(); i++) {
+			String drink = slots.get(i).getDrink();
+			Integer count = drinksObtained.get(drink);
+			if(count == null)
+				count = 0;
+			dataTable.setValue(i, 0, drink);	// set drink name
+			dataTable.setValue(i, 1, count);	// set count of slots in history
+		}
+		
 		
 //		ChartArea area = ChartArea.create();
 //		area.setLeft(0);
