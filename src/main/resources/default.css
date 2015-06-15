@@ -100,6 +100,15 @@ h1.description {
 	position: relative;
 }
 
+#dashboard {
+	height: 0px;
+	visible: none;
+}
+
+#chart {
+	height: 300px;
+}
+
 #footer {
 	height: 150px;
 	background: none repeat scroll 0 0 #222;

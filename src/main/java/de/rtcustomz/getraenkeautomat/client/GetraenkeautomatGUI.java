@@ -6,20 +6,26 @@ import java.util.List;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ChartLoader;
 import com.googlecode.gwt.charts.client.ChartPackage;
+import com.googlecode.gwt.charts.client.ChartType;
+import com.googlecode.gwt.charts.client.ChartWrapper;
 import com.googlecode.gwt.charts.client.ColumnType;
 import com.googlecode.gwt.charts.client.DataTable;
-import com.googlecode.gwt.charts.client.corechart.PieChart;
+import com.googlecode.gwt.charts.client.controls.Dashboard;
+import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilter;
+import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilterOptions;
+import com.googlecode.gwt.charts.client.corechart.PieChartOptions;
 
 import de.rtcustomz.getraenkeautomat.client.proxies.HistoryEntryProxy;
 import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
@@ -33,12 +39,13 @@ public class GetraenkeautomatGUI implements EntryPoint {
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
 	
-	private SimplePanel panel;
-    private PieChart pieChart;
+//	private FlowPanel panel;
+	private Dashboard dashboard;
+//    private PieChart pieChart;
+	private NumberRangeFilter numberRangeFilter;
+	private ChartWrapper<PieChartOptions> pieChart;
     private List<HistoryEntryProxy> history;
     private List<SlotProxy> slots;
-    
-    private int retry;
 
 	/**
 	 * This is the entry point method.
@@ -48,7 +55,6 @@ public class GetraenkeautomatGUI implements EntryPoint {
 		
 		getSlots();
 		getHistory();
-		retry = 0;
 		
 		
 		MyResources.INSTANCE.css().ensureInjected();
@@ -69,7 +75,7 @@ public class GetraenkeautomatGUI implements EntryPoint {
     	FlowPanel content = new FlowPanel();
     	content.getElement().setId("content");
     	
-    	content.add(getChartPanel());
+//    	content.add(getChartPanel());
 
     	wrapper.add(content);
     	wrapper.add(footer);
@@ -77,15 +83,34 @@ public class GetraenkeautomatGUI implements EntryPoint {
     	RootPanel.get().add(wrapper);
     	
         // Create the API Loader
-        ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);
+        ChartLoader chartLoader = new ChartLoader(ChartPackage.CONTROLS);
         chartLoader.loadApi(new Runnable() {
             @Override
             public void run() {
-                getChartPanel().setWidget(getPieChart());
-                drawPieChart();
+                //getChartPanel().add(getPieChart());
+//            	Document.get().getElementById("content").appendChild( getPieChart().getElement() );
+            	Document.get().getElementById("content").appendChild( getDashboard().getElement() );
+            	Document.get().getElementById("content").appendChild( getNumberRangeFilter().getElement() );
+            	Document.get().getElementById("content").appendChild( getPieChart().getElement() );
+            	//RootPanel.get("content").add(getPieChart());
+                drawDashboard();
             }
         });
+        
+        // draw new PieChart if user resizes the browser window
+        Window.addResizeHandler(new ResizeHandler() {
+			@Override
+			public void onResize(ResizeEvent event) {
+				if(dashboard != null) {
+					drawDashboard();
+				}
+			}
+        });
 	}
+	
+	native void console( Object message) /*-{
+	    console.log(message);
+	}-*/;
 	
 	private void getHistory() {
 		HistoryRequest historyrequest = requestFactory.historyRequest();
@@ -94,6 +119,9 @@ public class GetraenkeautomatGUI implements EntryPoint {
 			@Override
 			public void onSuccess(List<HistoryEntryProxy> response) {
 				history = response;
+				if(dashboard != null) {
+					drawDashboard();
+				}
 			}
 			
 		});
@@ -106,39 +134,57 @@ public class GetraenkeautomatGUI implements EntryPoint {
 			@Override
 			public void onSuccess(List<SlotProxy> response) {
 				slots = response;
+				if(dashboard != null) {
+					drawDashboard();
+				}
 			}
 			
 		});
 	}
 
-	private SimplePanel getChartPanel() {
-        if (panel == null) {
-            panel = new SimplePanel();
-            panel.getElement().setId("chart");
-        }
-        return panel;
+//	private FlowPanel getChartPanel() {
+//        if (panel == null) {
+//            panel = new FlowPanel();
+//            panel.getElement().setId("chart");
+//        }
+//        return panel;
+//	}
+	
+	private Widget getDashboard() {
+		if (dashboard == null) {
+			dashboard = new Dashboard();
+			dashboard.getElement().setId("dashboard");
+		}
+		return dashboard;
 	}
 	
-	private Widget getPieChart() {
+	private ChartWrapper<PieChartOptions> getPieChart() {
 		if (pieChart == null) {
-	        pieChart = new PieChart();
+			pieChart = new ChartWrapper<PieChartOptions>();
+			pieChart.setChartType(ChartType.PIE);
 		}
 		return pieChart;
 	}
 	
-	private void drawPieChart() {
-		// if history or slots aren't loaded yet, retry in 500 miliseconds again (max 10 times)
-		if((history == null || slots == null) && retry <= 10) {
-			// TODO: ladebalken
-			Timer timer = new Timer() {
-				@Override
-				public void run() {
-					drawPieChart();
-				}
-			};
-			timer.schedule(500);
-			retry++;
+	private NumberRangeFilter getNumberRangeFilter() {
+		if (numberRangeFilter == null) {
+			numberRangeFilter = new NumberRangeFilter();
 		}
+		return numberRangeFilter;
+	}
+	
+//	private Widget getPieChart() {
+//		if (pieChart == null) {
+//	        pieChart = new PieChart();
+//	        pieChart.getElement().setId("chart");
+//		}
+//		return pieChart;
+//	}
+	
+	private void drawDashboard() {
+		// chart can only been drawn if history and slots have been loaded
+		if(history == null || slots == null)
+			return;
 		
 		HashMap<String, Integer> drinksObtained = new HashMap<>();
 		
@@ -160,8 +206,8 @@ public class GetraenkeautomatGUI implements EntryPoint {
 		
 		// Prepare the data
 		DataTable dataTable = DataTable.create();
-		dataTable.addColumn(ColumnType.STRING, "Drink");
-		dataTable.addColumn(ColumnType.NUMBER, "obtained");
+		dataTable.addColumn(ColumnType.STRING, "Getränk");
+		dataTable.addColumn(ColumnType.NUMBER, "entnommen");
 		
 		// add so much entries in PieChart as slots exists
 		dataTable.addRows(slots.size());
@@ -174,19 +220,26 @@ public class GetraenkeautomatGUI implements EntryPoint {
 			dataTable.setValue(i, 1, count);	// set count of slots in history
 		}
 		
+		// Set control options
+		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
+		numberRangeFilterOptions.setFilterColumnLabel("entnommen");
+		numberRangeFilterOptions.setMinValue(1);
+		numberRangeFilterOptions.setMaxValue(drinksObtained.size());
+		numberRangeFilter.setOptions(numberRangeFilterOptions);
 		
-//		ChartArea area = ChartArea.create();
-//		area.setLeft(0);
-//		area.setTop(0);
-//		area.setWidth("50%");
-//		area.setHeight("50%");
-//		
-//		
-//		PieChartOptions options = PieChartOptions.create();
-//		options.setChartArea(area);
+		
+		PieChartOptions options = PieChartOptions.create();
+		options.setTitle("Getränke entnommen gesamt");
+		pieChart.setOptions(options);
+		
+//		pieChart.setWidth("100%");
+//		pieChart.setHeight("100%");
 		
 		// Draw the chart
-		pieChart.draw(dataTable/*, options*/);
+//		pieChart.draw(dataTable, options);
+		
+		dashboard.bind(numberRangeFilter, pieChart);
+		dashboard.draw(dataTable);
 	}
 
 }
