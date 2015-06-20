@@ -39,7 +39,7 @@ import de.rtcustomz.getraenkeautomat.shared.requests.CardRequest;
 import de.rtcustomz.getraenkeautomat.shared.requests.UserRequest;
 
 public class AdminGUI implements EntryPoint {
-	private final Messages messages = GWT.create(Messages.class);
+	//private final Messages messages = GWT.create(Messages.class);
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	
@@ -48,7 +48,7 @@ public class AdminGUI implements EntryPoint {
 	SimplePager pager;
 	
     private final ListDataProvider<CardProxy> dataProvider = new ListDataProvider<CardProxy>();
-    final ListDataProvider<UserProxy> userProvider = new ListDataProvider<UserProxy>();
+    //final ListDataProvider<UserProxy> userProvider = new ListDataProvider<UserProxy>();
     List<UserProxy> userlist = new ArrayList<UserProxy>();
     
 	CardRequest request_card = requestFactory.cardRequest();
@@ -87,7 +87,7 @@ public class AdminGUI implements EntryPoint {
     	content.getElement().setId("content");
     	
     	// TODO: add content to contentFlowPanel, e.g.:
-    	content.add(new HTMLPanel(HeadingElement.TAG_H1, "Hier kommt der Content rein!!!"));
+    	//content.add(new HTMLPanel(HeadingElement.TAG_H1, "Hier kommt der Content rein!!!"));
     	
     	//-----\/-----
     	requestFactory.initialize(eventBus);
@@ -95,7 +95,7 @@ public class AdminGUI implements EntryPoint {
 		dataGrid.setWidth("100%");
 		dataGrid.setHeight("300px");
 		
-		dataGrid.setAutoHeaderRefreshDisabled(true);
+		//dataGrid.setAutoHeaderRefreshDisabled(true);
 		
 		dataGrid.setEmptyTableWidget(new Label("Leere Tabelle..."));
 		final ListHandler<CardProxy> sortHandler = new ListHandler<CardProxy>(dataProvider.getList());
@@ -111,16 +111,9 @@ public class AdminGUI implements EntryPoint {
 		request_user.findAllUsers().fire(new Receiver<List<UserProxy>>() {
 			@Override
 			public void onSuccess(List<UserProxy> users) {
-				//AdminGUI.this.userProvider.getList().clear();
-				//AdminGUI.this.userProvider.getList().addAll(users);
-				//AdminGUI.this.userlist.addAll(users);
 				setUserList(users);
-				//Window.alert("Eins");
 				initTableColumns(selectionModel, sortHandler);
-				//Window.alert("Zwei");
 				showGrid();
-				//userProvider.getList().clear();
-				//userProvider.getList().addAll(users);
 				userLoadLabel.setHTML("<p>Status: User Data loaded</p>");
 			}
 			@Override
@@ -128,23 +121,6 @@ public class AdminGUI implements EntryPoint {
 				userLoadLabel.setHTML("<p>"+error.getMessage()+"</p>");
 			}
 		});
-		
-//		initTableColumns(selectionModel, sortHandler);
-//		
-//		dataProvider.addDataDisplay(dataGrid);
-//		
-//		request_card.findAllCards().with("user").fire(new Receiver<List<CardProxy>>() {
-//			public void onSuccess(List <CardProxy> cards) {
-//				//dataProvider.setList(cards);
-//				dataProvider.getList().clear();
-//				dataProvider.getList().addAll(cards);
-//				cardLoadLabel.setHTML("<p>Status: Card Data loaded</p>");
-//			}
-//			@Override
-//			public void onFailure(ServerFailure error) {
-//				cardLoadLabel.setHTML("<p>"+error.getMessage()+"</p>");
-//			}
-//		});
 		
 		content.add(cardLoadLabel);
 		content.add(userLoadLabel);
@@ -196,7 +172,8 @@ public class AdminGUI implements EntryPoint {
 	    }
 	  });
 	  dataGrid.addColumn(idColumn, "ID");
-	  dataGrid.setColumnWidth(idColumn, 20, Unit.PCT);
+	  //dataGrid.setColumnWidth(idColumn, 140, Unit.PX);
+	  dataGrid.setColumnWidth(idColumn, 17, Unit.PCT);
 	
 	  // type.
 	  Column<CardProxy, String> typeNameColumn =
@@ -214,125 +191,9 @@ public class AdminGUI implements EntryPoint {
 	    }
 	  });
 	  dataGrid.addColumn(typeNameColumn, "Type");
-	  dataGrid.setColumnWidth(typeNameColumn, 20, Unit.PCT);
-	
-	// user
-	    //final List<UserProxy> users = userProvider.getList();
-		//Window.alert("userlist size: "+userlist.size());
-	    List<String> userNames = new ArrayList<String>();
-	    for (UserProxy user : userlist) {
-	      userNames.add(user.getFirstname()+" "+user.getLastname());
-	    }
-	    SelectionCell userCell = new SelectionCell(userNames);
-	    Column<CardProxy, String> userColumn = new Column<CardProxy, String>(userCell) {
-	      @Override
-	      public String getValue(CardProxy object) {
-	    	  UserProxy user = object.getUser();
-	    	  if(user!=null) return user.getFirstname()+" "+user.getLastname();
-	    	  else return "";
-	      }
-	    };
-	    dataGrid.addColumn(userColumn, "User");
-	    userColumn.setFieldUpdater(new FieldUpdater<CardProxy, String>() {
-	      @Override
-	      public void update(int index, CardProxy object, String value) {
-	        for (UserProxy user : userlist) {
-	        	String name = user.getFirstname()+" "+user.getLastname();
-	        	if (name.equals(value)) {
-	        		request_card = requestFactory.cardRequest();
-	        		CardProxy card = request_card.edit(object);
-			    	card.setUser(user);
-			    	request_card.save(card).with("user").fire(new Receiver<Void>(){
-						@Override
-						public void onSuccess(Void arg0) {
-							dataProvider.refresh();
-						}
-			    		
-			    	});
-			    }
-	        }
-	      }
-	    });
-	    dataGrid.setColumnWidth(userColumn, 130, Unit.PX);
-	  
-//	  // userid.
-//	  Column<CardProxy, String> userColumn = new Column<CardProxy, String>(new EditTextCell()) {
-//	    @Override
-//	    public String getValue(CardProxy object) {
-//	    	UserProxy user = object.getUser();
-//	    	if(user!=null) return user.getId()+"";
-//	    	else return "";
-//	    }
-//	  };
-//	  userColumn.setSortable(true);
-//	  sortHandler.setComparator(userColumn, new Comparator<CardProxy>() {
-//	    @Override
-//	    public int compare(CardProxy o1, CardProxy o2) {
-////	    	if(o1.getUser().getId()<o2.getUser().getId())
-////	    		return 1;
-////	    	else
-////	    		if(o1.getUser().getId()==o2.getUser().getId())
-////	    			return 0;
-////	    		else
-////	    			return -1;
-//	    	return 1;
-//	    }
-//	  });
-//	  dataGrid.addColumn(userColumn, "UserID");
-//	  userColumn.setFieldUpdater(new FieldUpdater<CardProxy, String>() {
-//	    @Override
-//	    public void update(int index, CardProxy object, String value) {
-//	      // Called when the user changes the value.
-//		      // Called when the user changes the value.
-//	    		int id = 0;
-//	    		id = Integer.parseInt(value);
-//	    		if(id>0)
-//	    		{
-//	    		request_user = requestFactory.userRequest();
-//	    		request_user.findById(Integer.parseInt(value)).fire(new Receiver<UserProxy>(){
-//	    			@Override
-//					public void onSuccess(UserProxy found_user) {
-//	    				//newUserProxy=found_user;
-//	    				userProvider.getList().add(found_user);
-//	    				//Window.alert("userlist size: "+userProvider.getList().size());
-//					}
-//
-//					@Override
-//					public void onFailure(ServerFailure error) {
-//						// TODO Auto-generated method stub
-//						Window.alert("Error:\n"+error.getMessage());
-//					}
-//	    		});
-//	    		//Window.alert("userlist size: "+userProvider.getList().size());
-//	    		//Window.alert("id: "+userProvider.getList().get(0).getId()+"\n fname: "+userProvider.getList().get(0).getFirstname());
-//	    		request_card = requestFactory.cardRequest();
-//		    	CardProxy card = request_card.edit(object);
-//		    	card.setUser(userProvider.getList().get(0));
-//		    	request_card.save(card).with("user").fire(new Receiver<Void>(){
-//					@Override
-//					public void onSuccess(Void arg0) {
-//						dataProvider.refresh();
-//					}
-//		    		
-//		    	});
-//		    	}
-//	    		else
-//	    		{
-//	    			request_card = requestFactory.cardRequest();
-//			    	CardProxy card = request_card.edit(object);
-//			    	card.setUser(null);
-//			    	request_card.save(card).fire(new Receiver<Void>(){
-//						@Override
-//						public void onSuccess(Void arg0) {
-//							dataProvider.refresh();
-//						}
-//			    		
-//			    	});
-//	    		}
-//		    }
-//	  });
-//	  dataGrid.setColumnWidth(userColumn, 7, Unit.EM);
-	
+	  //dataGrid.setColumnWidth(typeNameColumn, 140, Unit.PX);
+	  dataGrid.setColumnWidth(typeNameColumn, 17, Unit.PCT);
+		
 	  // Description.
 	  Column<CardProxy, String> descriptionColumn =
 	      new Column<CardProxy, String>(new EditTextCell()) {
@@ -365,7 +226,52 @@ public class AdminGUI implements EntryPoint {
 	    	});
 	    }
 	  });
-	  dataGrid.setColumnWidth(descriptionColumn, 20, Unit.PCT);
+	  //dataGrid.setColumnWidth(descriptionColumn, 330, Unit.PX);
+	  dataGrid.setColumnWidth(descriptionColumn, 33, Unit.PCT);
+	  
+	  // user
+	    //final List<UserProxy> users = userProvider.getList();
+		//Window.alert("userlist size: "+userlist.size());
+	    List<String> userNames = new ArrayList<String>();
+	    userNames.add("-");
+	    for (UserProxy user : userlist) {
+	      //userNames.add(user.getFirstname()+" "+user.getLastname());
+	    	userNames.add(getUserDisplayName(user));
+	    }
+	    SelectionCell userCell = new SelectionCell(userNames);
+	    Column<CardProxy, String> userColumn = new Column<CardProxy, String>(userCell) {
+	      @Override
+	      public String getValue(CardProxy object) {
+	    	  UserProxy user = object.getUser();
+	    	  //if(user!=null) return user.getFirstname()+" "+user.getLastname();
+	    	  //else return "";
+	    	  return getUserDisplayName(user);
+	      }
+	    };
+	    dataGrid.addColumn(userColumn, "User");
+	    userColumn.setFieldUpdater(new FieldUpdater<CardProxy, String>() {
+	      @Override
+	      public void update(int index, CardProxy object, String value) {
+	        for (UserProxy user : userlist) {
+	        	//String name = user.getFirstname()+" "+user.getLastname();
+	        	String name = getUserDisplayName(user);
+	        	if (name.equals(value)) {
+	        		request_card = requestFactory.cardRequest();
+	        		CardProxy card = request_card.edit(object);
+			    	card.setUser(user);
+			    	request_card.save(card).with("user").fire(new Receiver<Void>(){
+						@Override
+						public void onSuccess(Void arg0) {
+							dataProvider.refresh();
+						}
+			    		
+			    	});
+			    }
+	        }
+	      }
+	    });
+	    //dataGrid.setColumnWidth(userColumn, 310, Unit.PX);
+	    dataGrid.setColumnWidth(userColumn, 33, Unit.PCT);
 	}
 	
 	private void showGrid()
@@ -391,5 +297,11 @@ public class AdminGUI implements EntryPoint {
 	{
 		userlist.clear();
 		userlist.addAll(users);
+	}
+	
+	private String getUserDisplayName(UserProxy user)
+	{
+  	  if(user!=null) return user.getId() + " - " + user.getFirstname().substring(0, 15) + " " + user.getLastname().substring(0, 15);
+  	  else return "";
 	}
 }
