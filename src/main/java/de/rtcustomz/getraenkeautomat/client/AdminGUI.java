@@ -75,7 +75,7 @@ public class AdminGUI implements EntryPoint {
 		clear.setStyleName("clear");
 
 		Header header = new Header();
-		Navigation nav = new Navigation();
+		Navigation nav = new Navigation("Karten","Benutzer");
 		Footer footer = new Footer();
 
 		wrapper.getElement().setId("wrapper");

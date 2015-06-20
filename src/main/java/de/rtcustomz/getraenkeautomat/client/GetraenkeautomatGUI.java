@@ -64,7 +64,7 @@ public class GetraenkeautomatGUI implements EntryPoint {
 		clear.setStyleName("clear");
 
 		Header header = new Header();
-		Navigation nav = new Navigation();
+		Navigation nav = new Navigation("Projekte","Impressum");
 		Footer footer = new Footer();
 
 		wrapper.getElement().setId("wrapper");
