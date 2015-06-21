@@ -5,10 +5,10 @@ import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
-import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 public class AdminGUI implements EntryPoint {
 	
@@ -33,12 +33,10 @@ public class AdminGUI implements EntryPoint {
                 System.out.println("Current State : " + event.getValue());
                 
                 if (event.getValue().equals(AdminCardPage.getPageName())){
-                    //RootPanel.get().clear();
                     showPage(AdminCardPage.getInstance());
                 }
                 
                 else if (event.getValue().equals(AdminUserPage.getPageName())){
-                    //RootPanel.get().clear();
                     showPage(AdminUserPage.getInstance());;
                 }    
             }
@@ -74,7 +72,7 @@ public class AdminGUI implements EntryPoint {
     	RootPanel.get().add(wrapper);
 	}
 	
-	private void showPage(Composite page)
+	private void showPage(Widget page)
 	{
 		content.clear();
 		content.add(page);

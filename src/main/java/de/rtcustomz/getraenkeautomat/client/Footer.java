@@ -18,15 +18,13 @@ public class Footer extends Composite {
 		FlowPanel kontaktPanel = new FlowPanel();
 		FlowPanel linkPanel = new FlowPanel();
 		
-		
-		
 		HTMLPanel kontaktHeader = new HTMLPanel(HeadingElement.TAG_H3, "Kontakt");
 		kontaktHeader.setStyleName("title");
 		
 		FlowPanel kontaktDaten = new FlowPanel(ParagraphElement.TAG);
 		kontaktDaten.add(new InlineLabel("Westfälische Hochschule Campus Bocholt"));
 		kontaktDaten.add(new FlowPanel(BRElement.TAG));
-		kontaktDaten.add(new InlineLabel("Sebastian Thiems"));
+		kontaktDaten.add(new InlineLabel("Dennis Ahrens, Fabian Kalkofen"));
 		kontaktDaten.add(new FlowPanel(BRElement.TAG));
 		kontaktDaten.add(new InlineLabel("Münsterstrasse 265"));
 		kontaktDaten.add(new FlowPanel(BRElement.TAG));
@@ -36,15 +34,13 @@ public class Footer extends Composite {
 		kontaktPanel.add(kontaktDaten);
 		kontaktPanel.setStyleName("kontakt");
 		
-		
-		
 		HTMLPanel linkHeader = new HTMLPanel(HeadingElement.TAG_H3, "Links");
 		linkHeader.setStyleName("title");
 		
 		FlowPanel links = new FlowPanel(UListElement.TAG);
 		
 		FlowPanel admin = new FlowPanel(LIElement.TAG);
-		admin.add(new Anchor("Admin"));
+		admin.add(new Anchor("Admin", "AdminGUI.html"));
 		
 		FlowPanel rtcustomz = new FlowPanel(LIElement.TAG);
 		rtcustomz.add(new Anchor("42volt.de", "http://42volt.de"));
@@ -59,8 +55,6 @@ public class Footer extends Composite {
 		linkPanel.add(linkHeader);
 		linkPanel.add(links);
 		linkPanel.setStyleName("links");
-		
-		
 		
 		mainPanel.add(kontaktPanel);
 		mainPanel.add(linkPanel);
