@@ -1,14 +1,19 @@
 package de.rtcustomz.getraenkeautomat.client;
 
 import com.google.gwt.core.client.EntryPoint;
+import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.RootPanel;
 
 public class AdminGUI implements EntryPoint {
+	
+	FlowPanel content = new FlowPanel();
+	
 	/**
 	 * This is the entry point method.
 	 */
@@ -19,6 +24,8 @@ public class AdminGUI implements EntryPoint {
           History.newItem(AdminCardPage.getPageName());
         }
         
+        initPage();
+        
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
 			
             @Override
@@ -26,12 +33,12 @@ public class AdminGUI implements EntryPoint {
                 System.out.println("Current State : " + event.getValue());
                 
                 if (event.getValue().equals(AdminCardPage.getPageName())){
-                    RootPanel.get().clear();
+                    //RootPanel.get().clear();
                     showPage(AdminCardPage.getInstance());
                 }
                 
                 else if (event.getValue().equals(AdminUserPage.getPageName())){
-                    RootPanel.get().clear();
+                    //RootPanel.get().clear();
                     showPage(AdminUserPage.getInstance());;
                 }    
             }
@@ -39,7 +46,7 @@ public class AdminGUI implements EntryPoint {
         History.fireCurrentHistoryState(); 
 	}
 	
-	private void showPage(Composite page)
+	private void initPage()
 	{
 		MyResources.INSTANCE.css().ensureInjected();
 		
@@ -56,16 +63,20 @@ public class AdminGUI implements EntryPoint {
     	wrapper.add(nav);
     	wrapper.add(clear);
     	
-    	FlowPanel content = new FlowPanel();
+    	//FlowPanel content = new FlowPanel();
     	content.getElement().setId("content");
     	
-    	// TODO: add content to contentFlowPanel, e.g.:
-    	//content.add(new HTMLPanel(HeadingElement.TAG_H1, "Hier kommt der Content rein!!!"));
-    	content.add(page);
+    	content.add(new HTMLPanel(HeadingElement.TAG_H1, "Inhalt wird geladen ..."));
     	
     	wrapper.add(content);
     	wrapper.add(footer);
     	
     	RootPanel.get().add(wrapper);
+	}
+	
+	private void showPage(Composite page)
+	{
+		content.clear();
+		content.add(page);
 	}
 }
