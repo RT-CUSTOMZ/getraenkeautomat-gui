@@ -8,6 +8,7 @@ import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
@@ -34,11 +35,10 @@ public class MainLayout extends Composite {
 			
             @Override
             public void onValueChange(ValueChangeEvent<String> event) {
-            	for (Map.Entry<String, Page> entry : pages.entrySet()) {
-            		if (event.getValue().equals(entry.getKey())){
-            			showPage(entry.getValue());
-                    }
-            	} 
+            	final String page = event.getValue();
+            	if(pages.containsKey(page))
+            		showPage(pages.get(page));
+            	else showPage(ErrorPage.getInstance());
             }
 		});
         History.fireCurrentHistoryState();
