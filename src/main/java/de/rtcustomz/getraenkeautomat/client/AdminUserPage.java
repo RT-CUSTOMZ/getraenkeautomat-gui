@@ -229,7 +229,10 @@ public class AdminUserPage extends Page {
 	      new Column<UserProxy, String>(new EditTextCell()) {
 	        @Override
 	        public String getValue(UserProxy object) {
-	          return object.getNickname();
+	        	String nickname = object.getNickname();
+		        if(nickname!=null) 
+		        	return nickname;
+		        else return "";
 	        }
 	      };
 	      nickNameColumn.setSortable(true);
