@@ -7,18 +7,20 @@ import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
-import com.google.gwt.view.client.MultiSelectionModel;
-import com.google.gwt.view.client.SelectionModel;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.google.web.bindery.requestfactory.shared.Receiver;
@@ -43,6 +45,7 @@ public class AdminSlotPage extends Page {
     private final ListDataProvider<SlotProxy> dataProvider = new ListDataProvider<SlotProxy>();
 
     final HTML slotLoadLabel = new HTML();
+    Button save = new Button("Speichern");
 
     public AdminSlotPage() {
 	initPage();
@@ -75,22 +78,26 @@ public class AdminSlotPage extends Page {
 	pager = new SimplePager(TextLocation.CENTER, pagerResources, false, 0, true);
 	pager.setDisplay(dataGrid);
 
-	final SelectionModel<SlotProxy> selectionModel = new MultiSelectionModel<SlotProxy>();
-	dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<SlotProxy> createCheckboxManager());
-
-	initTableColumns(selectionModel, sortHandler);
+	initTableColumns(sortHandler);
 
 	showGrid();
+
+	save.addClickHandler(new ClickHandler() {
+	    public void onClick(ClickEvent event) {
+		page.add(new HTMLPanel(HeadingElement.TAG_H1, "TODO: Speichern implementieren!"));
+	    }
+	});
 
 	page.add(slotLoadLabel);
 	page.add(dataGrid);
 	page.add(pager);
+	page.add(save);
     }
 
     /**
      * Add the columns to the table.
      */
-    private void initTableColumns(final SelectionModel<SlotProxy> selectionModel, ListHandler<SlotProxy> sortHandler) {
+    private void initTableColumns(ListHandler<SlotProxy> sortHandler) {
 	// slot id column
 	Column<SlotProxy, String> idColumn = new Column<SlotProxy, String>(new TextCell()) {
 	    @Override
@@ -135,7 +142,6 @@ public class AdminSlotPage extends Page {
 		    public void onSuccess(Void arg0) {
 			dataProvider.refresh();
 		    }
-
 		});
 	    }
 	});
