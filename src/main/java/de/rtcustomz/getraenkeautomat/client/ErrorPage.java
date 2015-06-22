@@ -6,30 +6,29 @@ import com.google.gwt.user.client.ui.HTMLPanel;
 
 public class ErrorPage extends Page {
 
-	static private ErrorPage _instance = null;
-	private static final String pageName = "Fehler";
-	
-	public ErrorPage() 
-	{
-        initPage();
-        initWidget(page);
-	}
-	
-    public static ErrorPage getInstance(){
-        if(null == _instance) {
-            _instance = new ErrorPage();
-        }
-        return _instance;
+    static private ErrorPage _instance = null;
+    private static final String pageName = "Fehler";
+
+    public ErrorPage() {
+	initPage();
+	initWidget(page);
     }
-    
-    public static String getPageName()
-    {
-    	return pageName;
-    }
-	
-	@Override
-	public void initPage() {
-		page.add(new HTMLPanel(HeadingElement.TAG_H1, "Fehler! Seite "+History.getToken()+" konnte nicht gefunden werden!"));
+
+    public static ErrorPage getInstance() {
+	if (null == _instance) {
+	    _instance = new ErrorPage();
 	}
+	return _instance;
+    }
+
+    public static String getPageName() {
+	return pageName;
+    }
+
+    @Override
+    public void initPage() {
+	page.add(new HTMLPanel(HeadingElement.TAG_H1, "Fehler! Seite " + History.getToken()
+		+ " konnte nicht gefunden werden!"));
+    }
 
 }
