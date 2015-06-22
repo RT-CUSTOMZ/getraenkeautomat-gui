@@ -4,17 +4,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Document;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ChartLoader;
@@ -34,11 +29,21 @@ import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
 import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
-public class EvalChartSlotPage extends Composite {
+public class EvalChartSlotPage extends Page {
 	
-	FlowPanel page = new FlowPanel();
 	static private EvalChartSlotPage _instance = null;
 	private static final String pageName = "Monat";
+
+	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	private final EventBus eventBus = new SimpleEventBus();
+	
+//	private FlowPanel panel;
+	private Dashboard dashboard;
+//    private PieChart pieChart;
+	private NumberRangeFilter numberRangeFilter;
+	private ChartWrapper<PieChartOptions> pieChart;
+    private List<HistoryEntryProxy> history;
+    private List<SlotProxy> slots;
 	
 	public EvalChartSlotPage()
 	{
@@ -57,23 +62,8 @@ public class EvalChartSlotPage extends Composite {
     {
     	return pageName;
     }
-	
-	// private final Messages messages = GWT.create(Messages.class);
 
-	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
-	private final EventBus eventBus = new SimpleEventBus();
-	
-//	private FlowPanel panel;
-	private Dashboard dashboard;
-//    private PieChart pieChart;
-	private NumberRangeFilter numberRangeFilter;
-	private ChartWrapper<PieChartOptions> pieChart;
-    private List<HistoryEntryProxy> history;
-    private List<SlotProxy> slots;
-
-	/**
-	 * This is the entry point method.
-	 */
+	@Override
 	public void initPage() {
 		requestFactory.initialize(eventBus);
 		
@@ -85,12 +75,6 @@ public class EvalChartSlotPage extends Composite {
         chartLoader.loadApi(new Runnable() {
             @Override
             public void run() {
-                //getChartPanel().add(getPieChart());
-//            	Document.get().getElementById("content").appendChild( getPieChart().getElement() );
-//            	Document.get().getElementById("content").appendChild( getDashboard().getElement() );
-//            	Document.get().getElementById("content").appendChild( getNumberRangeFilter().getElement() );
-//            	Document.get().getElementById("content").appendChild( getPieChart().getElement() );
-            	//RootPanel.get("content").add(getPieChart());
             	page.add( getDashboard() );
             	page.add( getNumberRangeFilter() );
             	page.add( getPieChart() );

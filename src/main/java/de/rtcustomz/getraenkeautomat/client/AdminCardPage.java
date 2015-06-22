@@ -15,8 +15,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
@@ -34,35 +32,13 @@ import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.CardRequest;
 import de.rtcustomz.getraenkeautomat.shared.requests.UserRequest;
 
-public class AdminCardPage extends Composite {
+public class AdminCardPage extends Page {
 	
-	FlowPanel page = new FlowPanel();
 	static private AdminCardPage _instance = null;
 	private static final String pageName = "Karten";
-	
-	public AdminCardPage() 
-	{
-        initPage();
-        initWidget(page);
-	}
-	
-    public static AdminCardPage getInstance(){
-        if(null == _instance) {
-            _instance = new AdminCardPage();
-        }
-        return _instance;
-    }
-    
-    public static String getPageName()
-    {
-    	return pageName;
-    }
-
-	//private final Messages messages = GWT.create(Messages.class);
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	
-	//-----\/-----
 	DataGrid<CardProxy> dataGrid;
 	SimplePager pager;
 	
@@ -81,11 +57,26 @@ public class AdminCardPage extends Composite {
 	final HTML cardLoadLabel = new HTML();
 	final HTML userLoadLabel = new HTML();
 	final HTML debugLabel = new HTML();
-	//-----/\-----
 	
-	/**
-	 * This is the entry point method.
-	 */
+	public AdminCardPage() 
+	{
+        initPage();
+        initWidget(page);
+	}
+	
+    public static AdminCardPage getInstance(){
+        if(null == _instance) {
+            _instance = new AdminCardPage();
+        }
+        return _instance;
+    }
+    
+    public static String getPageName()
+    {
+    	return pageName;
+    }
+	
+	@Override
 	public void initPage() {
     	
     	//-----\/-----

@@ -13,8 +13,6 @@ import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
@@ -30,11 +28,27 @@ import de.rtcustomz.getraenkeautomat.client.proxies.UserProxy;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.UserRequest;
 
-public class AdminUserPage extends Composite {
+public class AdminUserPage extends Page {
 	
-	FlowPanel page = new FlowPanel();
 	static private AdminUserPage _instance = null;
 	private static final String pageName = "Benutzer";
+	
+	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	
+	//-----\/-----
+	DataGrid<UserProxy> dataGrid;
+	SimplePager pager;
+	
+    private final ListDataProvider<UserProxy> dataProvider = new ListDataProvider<UserProxy>();
+    
+	UserRequest request_user = requestFactory.userRequest();
+	UserProxy newUserProxy = request_user.create(UserProxy.class);
+	
+	final EventBus eventBus = new SimpleEventBus();
+	
+	final HTML userLoadLabel = new HTML();
+	final HTML debugLabel = new HTML();
+	//-----/\-----
 	
 	public AdminUserPage() 
 	{
@@ -53,29 +67,8 @@ public class AdminUserPage extends Composite {
     {
     	return pageName;
     }
-
-	//private final Messages messages = GWT.create(Messages.class);
-
-	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	
-	//-----\/-----
-	DataGrid<UserProxy> dataGrid;
-	SimplePager pager;
-	
-    private final ListDataProvider<UserProxy> dataProvider = new ListDataProvider<UserProxy>();
-    
-	UserRequest request_user = requestFactory.userRequest();
-	UserProxy newUserProxy = request_user.create(UserProxy.class);
-	
-	final EventBus eventBus = new SimpleEventBus();
-	
-	final HTML userLoadLabel = new HTML();
-	final HTML debugLabel = new HTML();
-	//-----/\-----
-	
-	/**
-	 * This is the entry point method.
-	 */
+	@Override
 	public void initPage() {
     	
     	//-----\/-----
