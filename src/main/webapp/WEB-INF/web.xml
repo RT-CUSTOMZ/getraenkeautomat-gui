@@ -13,11 +13,6 @@
 
 	<!-- Servlets -->
 	<servlet>
-		<servlet-name>greetServlet</servlet-name>
-		<servlet-class>de.rtcustomz.getraenkeautomat.server.GreetingServiceImpl</servlet-class>
-	</servlet>
-
-	<servlet>
 		<servlet-name>GetraenkeautomatRESTService</servlet-name>
 		<servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
 		<init-param>
@@ -43,11 +38,6 @@
 	<servlet-mapping>
 		<servlet-name>requestFactoryServlet</servlet-name>
 		<url-pattern>/gwtRequest</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>greetServlet</servlet-name>
-		<url-pattern>/GetraenkeautomatGUI/greet</url-pattern>
 	</servlet-mapping>
 
 	<servlet-mapping>

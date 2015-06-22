@@ -47,7 +47,6 @@ public class AdminUserPage extends Page {
 	final EventBus eventBus = new SimpleEventBus();
 	
 	final HTML userLoadLabel = new HTML();
-	final HTML debugLabel = new HTML();
 	//-----/\-----
 	
 	public AdminUserPage() 
@@ -108,7 +107,6 @@ public class AdminUserPage extends Page {
 		showGrid();
 		
 		page.add(userLoadLabel);
-		page.add(debugLabel);
 		page.add(dataGrid);
 		page.add(pager);
 		
@@ -268,7 +266,7 @@ public class AdminUserPage extends Page {
 		if(dataProvider.getDataDisplays().size()!=0)return;
 		dataProvider.addDataDisplay(dataGrid);
 		
-		request_user.findAllUsers().with("user").fire(new Receiver<List<UserProxy>>() {
+		request_user.findAllUsers().fire(new Receiver<List<UserProxy>>() {
 			public void onSuccess(List <UserProxy> cards) {
 				//dataProvider.setList(cards);
 				dataProvider.getList().clear();

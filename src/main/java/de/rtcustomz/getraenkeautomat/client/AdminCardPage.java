@@ -56,7 +56,6 @@ public class AdminCardPage extends Page {
 	
 	final HTML cardLoadLabel = new HTML();
 	final HTML userLoadLabel = new HTML();
-	final HTML debugLabel = new HTML();
 	
 	public AdminCardPage() 
 	{
@@ -114,7 +113,6 @@ public class AdminCardPage extends Page {
 		
 		page.add(cardLoadLabel);
 		page.add(userLoadLabel);
-		page.add(debugLabel);
 		page.add(dataGrid);
 		page.add(pager);
 		

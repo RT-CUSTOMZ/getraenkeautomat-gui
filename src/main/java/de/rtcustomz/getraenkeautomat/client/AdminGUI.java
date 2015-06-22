@@ -16,6 +16,7 @@ public class AdminGUI implements EntryPoint {
 		LinkedHashMap<String, Page> pages = new LinkedHashMap<>();
 		pages.put(AdminCardPage.getPageName(),AdminCardPage.getInstance());
 		pages.put(AdminUserPage.getPageName(),AdminUserPage.getInstance());
+		pages.put(AdminSlotPage.getPageName(),AdminSlotPage.getInstance());
 		
 		MainLayout mainLayout = new MainLayout(pages);
 		
