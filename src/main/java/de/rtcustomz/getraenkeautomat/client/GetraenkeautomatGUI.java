@@ -1,6 +1,6 @@
 package de.rtcustomz.getraenkeautomat.client;
 
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -14,8 +14,9 @@ public class GetraenkeautomatGUI implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		TreeMap<String, Page> pages = new TreeMap<>();
-		pages.put(EvalChartSlotPage.getPageName(),EvalChartSlotPage.getInstance());
+		LinkedHashMap<String, Page> pages = new LinkedHashMap<>();
+		pages.put(PieChartPage.getPageName(),PieChartPage.getInstance());
+		pages.put(ColumnChartPage.getPageName(),ColumnChartPage.getInstance());
 		
 		MainLayout mainLayout = new MainLayout(pages);
 		

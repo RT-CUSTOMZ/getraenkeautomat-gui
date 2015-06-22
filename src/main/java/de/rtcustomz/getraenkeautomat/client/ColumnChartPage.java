@@ -21,7 +21,7 @@ import com.googlecode.gwt.charts.client.DataTable;
 import com.googlecode.gwt.charts.client.controls.Dashboard;
 import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilter;
 import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilterOptions;
-import com.googlecode.gwt.charts.client.corechart.PieChartOptions;
+import com.googlecode.gwt.charts.client.corechart.ColumnChartOptions;
 
 import de.rtcustomz.getraenkeautomat.client.proxies.HistoryEntryProxy;
 import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
@@ -29,10 +29,10 @@ import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
 import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
-public class EvalChartSlotPage extends Page {
+public class ColumnChartPage extends Page {
 	
-	static private EvalChartSlotPage _instance = null;
-	private static final String pageName = "Monat";
+	static private ColumnChartPage _instance = null;
+	private static final String pageName = "Column Chart";
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
@@ -41,19 +41,19 @@ public class EvalChartSlotPage extends Page {
 	private Dashboard dashboard;
 //    private PieChart pieChart;
 	private NumberRangeFilter numberRangeFilter;
-	private ChartWrapper<PieChartOptions> pieChart;
+	private ChartWrapper<ColumnChartOptions> columnChart;
     private List<HistoryEntryProxy> history;
     private List<SlotProxy> slots;
 	
-	public EvalChartSlotPage()
+	public ColumnChartPage()
 	{
         initPage();
         initWidget(page);
 	}
 	
-    public static EvalChartSlotPage getInstance(){
+    public static ColumnChartPage getInstance(){
         if(null == _instance) {
-            _instance = new EvalChartSlotPage();
+            _instance = new ColumnChartPage();
         }
         return _instance;
     }
@@ -69,15 +69,19 @@ public class EvalChartSlotPage extends Page {
 		
 		getSlots();
 		getHistory();
+		
+//		page.getElement().setId("chart");
     	
         // Create the API Loader
         ChartLoader chartLoader = new ChartLoader(ChartPackage.CONTROLS);
+//		ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);
         chartLoader.loadApi(new Runnable() {
             @Override
             public void run() {
             	page.add( getDashboard() );
             	page.add( getNumberRangeFilter() );
             	page.add( getPieChart() );
+//            	drawPieChart();
                 drawDashboard();
             }
         });
@@ -86,6 +90,9 @@ public class EvalChartSlotPage extends Page {
         Window.addResizeHandler(new ResizeHandler() {
 			@Override
 			public void onResize(ResizeEvent event) {
+//				if(pieChart != null) {
+//					drawPieChart();
+//				}
 				if(dashboard != null) {
 					drawDashboard();
 				}
@@ -104,6 +111,9 @@ public class EvalChartSlotPage extends Page {
 			@Override
 			public void onSuccess(List<HistoryEntryProxy> response) {
 				history = response;
+//				if(pieChart != null) {
+//					drawPieChart();
+//				}
 				if(dashboard != null) {
 					drawDashboard();
 				}
@@ -119,6 +129,9 @@ public class EvalChartSlotPage extends Page {
 			@Override
 			public void onSuccess(List<SlotProxy> response) {
 				slots = response;
+//				if(pieChart != null) {
+//					drawPieChart();
+//				}
 				if(dashboard != null) {
 					drawDashboard();
 				}
@@ -143,12 +156,12 @@ public class EvalChartSlotPage extends Page {
 		return dashboard;
 	}
 	
-	private ChartWrapper<PieChartOptions> getPieChart() {
-		if (pieChart == null) {
-			pieChart = new ChartWrapper<PieChartOptions>();
-			pieChart.setChartType(ChartType.PIE);
+	private ChartWrapper<ColumnChartOptions> getPieChart() {
+		if (columnChart == null) {
+			columnChart = new ChartWrapper<ColumnChartOptions>();
+			columnChart.setChartType(ChartType.COLUMN);
 		}
-		return pieChart;
+		return columnChart;
 	}
 	
 	private NumberRangeFilter getNumberRangeFilter() {
@@ -167,6 +180,7 @@ public class EvalChartSlotPage extends Page {
 //	}
 	
 	private void drawDashboard() {
+//	private void drawPieChart() {
 		// chart can only been drawn if history and slots have been loaded
 		if(history == null || slots == null)
 			return;
@@ -213,9 +227,9 @@ public class EvalChartSlotPage extends Page {
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
 		
 		
-		PieChartOptions options = PieChartOptions.create();
+		ColumnChartOptions options = ColumnChartOptions.create();
 		options.setTitle("Getränke entnommen gesamt");
-		pieChart.setOptions(options);
+		columnChart.setOptions(options);
 		
 //		pieChart.setWidth("100%");
 //		pieChart.setHeight("100%");
@@ -223,7 +237,7 @@ public class EvalChartSlotPage extends Page {
 		// Draw the chart
 //		pieChart.draw(dataTable, options);
 		
-		dashboard.bind(numberRangeFilter, pieChart);
+		dashboard.bind(numberRangeFilter, columnChart);
 		dashboard.draw(dataTable);
 	}
 

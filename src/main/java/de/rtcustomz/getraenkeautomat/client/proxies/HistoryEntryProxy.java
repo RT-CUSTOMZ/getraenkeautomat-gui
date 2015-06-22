@@ -18,11 +18,11 @@ public interface HistoryEntryProxy extends EntityProxy {
 
 	public SlotProxy getSlot();
 
-	public void setId(long id);
+	/*public void setId(long id);
 
 	public void setCard(CardProxy card);
 
 	public void setTime(Date time);
 
-	public void setSlot(SlotProxy slot);
+	public void setSlot(SlotProxy slot);*/
 }
