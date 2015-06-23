@@ -10,6 +10,11 @@ import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.googlecode.gwt.charts.client.ChartLoader;
+import com.googlecode.gwt.charts.client.ChartPackage;
+
+import de.rtcustomz.getraenkeautomat.client.admin.AdminPage;
+import de.rtcustomz.getraenkeautomat.client.charts.ChartPage;
 
 public class MainLayout extends Composite {
 	private FlowPanel content = new FlowPanel();
@@ -17,33 +22,44 @@ public class MainLayout extends Composite {
 	
 	private final LinkedHashMap<String, Page> pages;
 	
-	MainLayout(final LinkedHashMap<String, Page> pages) {
+	public MainLayout(final LinkedHashMap<String, Page> pages) {
 		this.pages = pages;
-		final Widget startPage = pages.entrySet().iterator().next().getValue();
+		final Page startPage = pages.entrySet().iterator().next().getValue();
 		
 		initHistory();
 		
 		initPage();
-		showPage(startPage);
+		
+		if(startPage instanceof ChartPage) {
+			ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART, ChartPackage.CONTROLS);
+	        chartLoader.loadApi(new Runnable() {
+	            @Override
+	            public void run() {
+	            	ChartPage page = (ChartPage)startPage;
+	            	page.initPage();
+	            	showPage(page);
+	            }
+	        });
+		} else {
+			showPage((AdminPage)startPage);
+		}
 		
 		initWidget(wrapper);
 	}
 	
 	private void initHistory() {
-//		String initToken = History.getToken();
-//        
-//        if (initToken.length() == 0) {
-//        	final String startPage = pages.keySet().iterator().next();
-//        	History.newItem(startPage);
-//        }
-		
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
 			
             @Override
             public void onValueChange(ValueChangeEvent<String> event) {
-            	final String page = event.getValue();
-            	if(pages.containsKey(page))
-            		showPage(pages.get(page));
+            	final String pageName = event.getValue();
+            	if(pages.containsKey(pageName)) {
+            		Page page = pages.get(pageName);
+            		if(page instanceof ChartPage)
+                		showPage((ChartPage)page);
+            		else
+                		showPage((AdminPage)page);
+            	}
             	else showPage(ErrorPage.getInstance());
             }
 		});

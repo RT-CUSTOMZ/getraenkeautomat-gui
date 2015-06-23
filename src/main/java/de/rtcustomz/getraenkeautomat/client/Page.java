@@ -1,9 +1,9 @@
 package de.rtcustomz.getraenkeautomat.client;
 
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.ScrollPanel;
 
-public abstract class Page extends Composite {
-	FlowPanel page = new FlowPanel();
+public interface Page {
+//	public FlowPanel page = new FlowPanel();
+	public ScrollPanel page = new ScrollPanel();
 	public abstract void initPage();
 }

@@ -2,9 +2,10 @@ package de.rtcustomz.getraenkeautomat.client;
 
 import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.user.client.History;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.HTMLPanel;
 
-public class ErrorPage extends Page {
+public class ErrorPage extends Composite implements Page {
 
     static private ErrorPage _instance = null;
     private static final String pageName = "Fehler";

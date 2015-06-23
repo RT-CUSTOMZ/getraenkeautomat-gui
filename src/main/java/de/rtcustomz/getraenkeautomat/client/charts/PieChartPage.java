@@ -1,20 +1,14 @@
-package de.rtcustomz.getraenkeautomat.client;
+package de.rtcustomz.getraenkeautomat.client.charts;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.logical.shared.ResizeEvent;
-import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.googlecode.gwt.charts.client.ChartLoader;
-import com.googlecode.gwt.charts.client.ChartPackage;
 import com.googlecode.gwt.charts.client.ColumnType;
 import com.googlecode.gwt.charts.client.DataTable;
 import com.googlecode.gwt.charts.client.corechart.PieChart;
@@ -26,7 +20,7 @@ import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
 import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
-public class PieChartPage extends Page {
+public class PieChartPage extends ChartPage {
 	
 	static private PieChartPage _instance = null;
 	private static final String pageName = "Pie Chart";
@@ -34,17 +28,28 @@ public class PieChartPage extends Page {
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
 	
-//	private FlowPanel panel;
-//	private Dashboard dashboard;
     private PieChart pieChart;
-//	private NumberRangeFilter numberRangeFilter;
-//	private ChartWrapper<PieChartOptions> pieChart;
     private List<HistoryEntryProxy> history;
     private List<SlotProxy> slots;
 	
 	public PieChartPage()
 	{
-        initPage();
+		requestFactory.initialize(eventBus);
+		
+		getSlots();
+		getHistory();
+//        initPage();
+
+        // draw new PieChart if user resizes the browser window
+//        Window.addResizeHandler(new ResizeHandler() {
+//			@Override
+//			public void onResize(ResizeEvent event) {
+//				if(pieChart != null) {
+//					drawChart();
+//				}
+//			}
+//        });
+        
         initWidget(page);
 	}
 	
@@ -62,44 +67,10 @@ public class PieChartPage extends Page {
 
 	@Override
 	public void initPage() {
-		requestFactory.initialize(eventBus);
+		page.add( getPieChart() );
 		
-		getSlots();
-		getHistory();
-		
-//		page.getElement().setId("chart");
-    	
-        // Create the API Loader
-//        ChartLoader chartLoader = new ChartLoader(ChartPackage.CONTROLS);
-		ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART);
-        chartLoader.loadApi(new Runnable() {
-            @Override
-            public void run() {
-//            	page.add( getDashboard() );
-//            	page.add( getNumberRangeFilter() );
-            	page.add( getPieChart() );
-            	drawPieChart();
-//                drawDashboard();
-            }
-        });
-        
-        // draw new PieChart if user resizes the browser window
-        Window.addResizeHandler(new ResizeHandler() {
-			@Override
-			public void onResize(ResizeEvent event) {
-				if(pieChart != null) {
-					drawPieChart();
-				}
-//				if(dashboard != null) {
-//					drawDashboard();
-//				}
-			}
-        });
+		drawChart();
 	}
-	
-	native void console( Object message) /*-{
-	    console.log(message);
-	}-*/;
 	
 	private void getHistory() {
 		HistoryRequest historyrequest = requestFactory.historyRequest();
@@ -109,11 +80,8 @@ public class PieChartPage extends Page {
 			public void onSuccess(List<HistoryEntryProxy> response) {
 				history = response;
 				if(pieChart != null) {
-					drawPieChart();
+					drawChart();
 				}
-//				if(dashboard != null) {
-//					drawDashboard();
-//				}
 			}
 			
 		});
@@ -127,46 +95,12 @@ public class PieChartPage extends Page {
 			public void onSuccess(List<SlotProxy> response) {
 				slots = response;
 				if(pieChart != null) {
-					drawPieChart();
+					drawChart();
 				}
-//				if(dashboard != null) {
-//					drawDashboard();
-//				}
 			}
 			
 		});
 	}
-
-//	private FlowPanel getChartPanel() {
-//        if (panel == null) {
-//            panel = new FlowPanel();
-//            panel.getElement().setId("chart");
-//        }
-//        return panel;
-//	}
-	
-//	private Widget getDashboard() {
-//		if (dashboard == null) {
-//			dashboard = new Dashboard();
-//			dashboard.getElement().setId("dashboard");
-//		}
-//		return dashboard;
-//	}
-	
-//	private ChartWrapper<PieChartOptions> getPieChart() {
-//		if (pieChart == null) {
-//			pieChart = new ChartWrapper<PieChartOptions>();
-//			pieChart.setChartType(ChartType.PIE);
-//		}
-//		return pieChart;
-//	}
-	
-//	private NumberRangeFilter getNumberRangeFilter() {
-//		if (numberRangeFilter == null) {
-//			numberRangeFilter = new NumberRangeFilter();
-//		}
-//		return numberRangeFilter;
-//	}
 	
 	private Widget getPieChart() {
 		if (pieChart == null) {
@@ -176,8 +110,8 @@ public class PieChartPage extends Page {
 		return pieChart;
 	}
 	
-//	private void drawDashboard() {
-	private void drawPieChart() {
+	@Override
+	public void drawChart() {
 		// chart can only been drawn if history and slots have been loaded
 		if(history == null || slots == null)
 			return;

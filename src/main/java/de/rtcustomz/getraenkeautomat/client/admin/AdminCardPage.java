@@ -1,7 +1,8 @@
-package de.rtcustomz.getraenkeautomat.client;
+package de.rtcustomz.getraenkeautomat.client.admin;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.cell.client.EditTextCell;
@@ -17,6 +18,7 @@ import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.MultiSelectionModel;
@@ -32,7 +34,7 @@ import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.CardRequest;
 import de.rtcustomz.getraenkeautomat.shared.requests.UserRequest;
 
-public class AdminCardPage extends Page {
+public class AdminCardPage extends AdminPage {
 
     static private AdminCardPage _instance = null;
     private static final String pageName = "Karten";
@@ -240,7 +242,7 @@ public class AdminCardPage extends Page {
 	dataGrid.setColumnWidth(userColumn, 33, Unit.PCT);
     }
 
-    private void showGrid() {
+    public void showGrid() {
 	if (dataProvider.getDataDisplays().size() != 0)
 	    return;
 	dataProvider.addDataDisplay(dataGrid);
