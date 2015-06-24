@@ -30,225 +30,225 @@ import de.rtcustomz.getraenkeautomat.shared.requests.UserRequest;
 
 public class AdminUserPage extends AdminPage {
 
-    static private AdminUserPage _instance = null;
-    private static final String pageName = "Benutzer";
+	static private AdminUserPage _instance = null;
+	private static final String pageName = "Benutzer";
 
-    private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
-    UserRequest request_user = requestFactory.userRequest();
-    // UserProxy newUserProxy = request_user.create(UserProxy.class);
+	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	UserRequest request_user = requestFactory.userRequest();
+	// UserProxy newUserProxy = request_user.create(UserProxy.class);
 
-    final EventBus eventBus = new SimpleEventBus();
+	final EventBus eventBus = new SimpleEventBus();
 
-    DataGrid<UserProxy> dataGrid;
-    SimplePager pager;
+	DataGrid<UserProxy> dataGrid;
+	SimplePager pager;
 
-    private final ListDataProvider<UserProxy> dataProvider = new ListDataProvider<UserProxy>();
+	private final ListDataProvider<UserProxy> dataProvider = new ListDataProvider<UserProxy>();
 
-    final HTML userLoadLabel = new HTML();
+	final HTML userLoadLabel = new HTML();
 
-    public AdminUserPage() {
-	initPage();
-	initWidget(page);
-    }
-
-    public static AdminUserPage getInstance() {
-	if (null == _instance) {
-	    _instance = new AdminUserPage();
+	public AdminUserPage() {
+		initPage();
+		initWidget(page);
 	}
-	return _instance;
-    }
 
-    public static String getPageName() {
-	return pageName;
-    }
+	public static AdminUserPage getInstance() {
+		if (null == _instance) {
+			_instance = new AdminUserPage();
+		}
+		return _instance;
+	}
 
-    @Override
-    public void initPage() {
-	requestFactory.initialize(eventBus);
-	dataGrid = new DataGrid<UserProxy>();
-	dataGrid.setWidth("100%");
-	dataGrid.setHeight("300px");
+	public static String getPageName() {
+		return pageName;
+	}
 
-	// dataGrid.setAutoHeaderRefreshDisabled(true);
+	@Override
+	public void initPage() {
+		requestFactory.initialize(eventBus);
+		dataGrid = new DataGrid<UserProxy>();
+		dataGrid.setWidth("100%");
+		dataGrid.setHeight("300px");
 
-	dataGrid.setEmptyTableWidget(new Label("Leere Tabelle..."));
-	final ListHandler<UserProxy> sortHandler = new ListHandler<UserProxy>(dataProvider.getList());
-	dataGrid.addColumnSortHandler(sortHandler);
+		// dataGrid.setAutoHeaderRefreshDisabled(true);
 
-	SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
-	pager = new SimplePager(TextLocation.CENTER, pagerResources, false, 0, true);
-	pager.setDisplay(dataGrid);
+		dataGrid.setEmptyTableWidget(new Label("Leere Tabelle..."));
+		final ListHandler<UserProxy> sortHandler = new ListHandler<UserProxy>(dataProvider.getList());
+		dataGrid.addColumnSortHandler(sortHandler);
 
-	final SelectionModel<UserProxy> selectionModel = new MultiSelectionModel<UserProxy>();
-	dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<UserProxy> createCheckboxManager());
+		SimplePager.Resources pagerResources = GWT.create(SimplePager.Resources.class);
+		pager = new SimplePager(TextLocation.CENTER, pagerResources, false, 0, true);
+		pager.setDisplay(dataGrid);
 
-	initTableColumns(selectionModel, sortHandler);
+		final SelectionModel<UserProxy> selectionModel = new MultiSelectionModel<UserProxy>();
+		dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<UserProxy> createCheckboxManager());
 
-	showGrid();
+		initTableColumns(selectionModel, sortHandler);
 
-	page.add(userLoadLabel);
-	page.add(dataGrid);
-	page.add(pager);
-    }
+		showGrid();
 
-    /**
-     * Add the columns to the table.
-     */
-    private void initTableColumns(final SelectionModel<UserProxy> selectionModel, ListHandler<UserProxy> sortHandler) {
-	// // Checkbox column. This table will uses a checkbox column for
-	// selection.
-	// // Alternatively, you can call dataGrid.setSelectionEnabled(true) to
-	// enable
-	// // mouse selection.
-	// Column<UserProxy, Boolean> checkColumn =
-	// new Column<UserProxy, Boolean>(new CheckboxCell(true, false)) {
-	// @Override
-	// public Boolean getValue(UserProxy object) {
-	// // Get the value from the selection model.
-	// return selectionModel.isSelected(object);
-	// }
-	// };
-	// dataGrid.addColumn(checkColumn,
-	// SafeHtmlUtils.fromSafeConstant("<br/>"));
-	// dataGrid.setColumnWidth(checkColumn, 40, Unit.PX);
-	// final List<UserProxy> card_list = new ArrayList<UserProxy>();
+		page.add(userLoadLabel);
+		page.add(dataGrid);
+		page.add(pager);
+	}
 
-	// user id column
-	Column<UserProxy, String> idColumn = new Column<UserProxy, String>(new TextCell()) {
-	    @Override
-	    public String getValue(UserProxy object) {
-		return object.getId() + "";
-	    }
-	};
-	idColumn.setSortable(true);
-	sortHandler.setComparator(idColumn, new Comparator<UserProxy>() {
-	    @Override
-	    public int compare(UserProxy o1, UserProxy o2) {
-		return Integer.compare(o1.getId(), o2.getId());
-	    }
-	});
-	dataGrid.addColumn(idColumn, "ID");
-	dataGrid.setColumnWidth(idColumn, 17, Unit.PCT);
+	/**
+	 * Add the columns to the table.
+	 */
+	private void initTableColumns(final SelectionModel<UserProxy> selectionModel, ListHandler<UserProxy> sortHandler) {
+		// // Checkbox column. This table will uses a checkbox column for
+		// selection.
+		// // Alternatively, you can call dataGrid.setSelectionEnabled(true) to
+		// enable
+		// // mouse selection.
+		// Column<UserProxy, Boolean> checkColumn =
+		// new Column<UserProxy, Boolean>(new CheckboxCell(true, false)) {
+		// @Override
+		// public Boolean getValue(UserProxy object) {
+		// // Get the value from the selection model.
+		// return selectionModel.isSelected(object);
+		// }
+		// };
+		// dataGrid.addColumn(checkColumn,
+		// SafeHtmlUtils.fromSafeConstant("<br/>"));
+		// dataGrid.setColumnWidth(checkColumn, 40, Unit.PX);
+		// final List<UserProxy> card_list = new ArrayList<UserProxy>();
 
-	// firstname column
-	Column<UserProxy, String> firstNameColumn = new Column<UserProxy, String>(new EditTextCell()) {
-	    @Override
-	    public String getValue(UserProxy object) {
-		return object.getFirstname();
-	    }
-	};
-	firstNameColumn.setSortable(true);
-	sortHandler.setComparator(firstNameColumn, new Comparator<UserProxy>() {
-	    @Override
-	    public int compare(UserProxy o1, UserProxy o2) {
-		return o1.getFirstname().compareTo(o2.getFirstname());
-	    }
-	});
-	dataGrid.addColumn(firstNameColumn, "Vorname");
-	firstNameColumn.setFieldUpdater(new FieldUpdater<UserProxy, String>() {
-	    @Override
-	    public void update(int index, UserProxy object, String value) {
-		// Called when the user changes the value.
-		request_user = requestFactory.userRequest();
-		UserProxy user = request_user.edit(object);
-		user.setFirstname(value);
-		request_user.save(user).fire(new Receiver<Void>() {
-		    @Override
-		    public void onSuccess(Void arg0) {
-			dataProvider.refresh();
-		    }
-
+		// user id column
+		Column<UserProxy, String> idColumn = new Column<UserProxy, String>(new TextCell()) {
+			@Override
+			public String getValue(UserProxy object) {
+				return object.getId() + "";
+			}
+		};
+		idColumn.setSortable(true);
+		sortHandler.setComparator(idColumn, new Comparator<UserProxy>() {
+			@Override
+			public int compare(UserProxy o1, UserProxy o2) {
+				return Integer.compare(o1.getId(), o2.getId());
+			}
 		});
-	    }
-	});
-	dataGrid.setColumnWidth(firstNameColumn, 33, Unit.PCT);
+		dataGrid.addColumn(idColumn, "ID");
+		dataGrid.setColumnWidth(idColumn, 17, Unit.PCT);
 
-	// lastname column
-	Column<UserProxy, String> lastNameColumn = new Column<UserProxy, String>(new EditTextCell()) {
-	    @Override
-	    public String getValue(UserProxy object) {
-		return object.getLastname();
-	    }
-	};
-	lastNameColumn.setSortable(true);
-	sortHandler.setComparator(lastNameColumn, new Comparator<UserProxy>() {
-	    @Override
-	    public int compare(UserProxy o1, UserProxy o2) {
-		return o1.getLastname().compareTo(o2.getLastname());
-	    }
-	});
-	dataGrid.addColumn(lastNameColumn, "Nachname");
-	lastNameColumn.setFieldUpdater(new FieldUpdater<UserProxy, String>() {
-	    @Override
-	    public void update(int index, UserProxy object, String value) {
-		// Called when the user changes the value.
-		request_user = requestFactory.userRequest();
-		UserProxy user = request_user.edit(object);
-		user.setLastname(value);
-		request_user.save(user).fire(new Receiver<Void>() {
-		    @Override
-		    public void onSuccess(Void arg0) {
-			dataProvider.refresh();
-		    }
-
+		// firstname column
+		Column<UserProxy, String> firstNameColumn = new Column<UserProxy, String>(new EditTextCell()) {
+			@Override
+			public String getValue(UserProxy object) {
+				return object.getFirstname();
+			}
+		};
+		firstNameColumn.setSortable(true);
+		sortHandler.setComparator(firstNameColumn, new Comparator<UserProxy>() {
+			@Override
+			public int compare(UserProxy o1, UserProxy o2) {
+				return o1.getFirstname().compareTo(o2.getFirstname());
+			}
 		});
-	    }
-	});
-	dataGrid.setColumnWidth(lastNameColumn, 33, Unit.PCT);
+		dataGrid.addColumn(firstNameColumn, "Vorname");
+		firstNameColumn.setFieldUpdater(new FieldUpdater<UserProxy, String>() {
+			@Override
+			public void update(int index, UserProxy object, String value) {
+				// Called when the user changes the value.
+				request_user = requestFactory.userRequest();
+				UserProxy user = request_user.edit(object);
+				user.setFirstname(value);
+				request_user.save(user).fire(new Receiver<Void>() {
+					@Override
+					public void onSuccess(Void arg0) {
+						dataProvider.refresh();
+					}
 
-	// nickname column
-	Column<UserProxy, String> nickNameColumn = new Column<UserProxy, String>(new EditTextCell()) {
-	    @Override
-	    public String getValue(UserProxy object) {
-		String nickname = object.getNickname();
-		if (nickname != null)
-		    return nickname;
-		else
-		    return "";
-	    }
-	};
-	nickNameColumn.setSortable(true);
-	sortHandler.setComparator(nickNameColumn, new Comparator<UserProxy>() {
-	    @Override
-	    public int compare(UserProxy o1, UserProxy o2) {
-		return o1.getNickname().compareTo(o2.getNickname());
-	    }
-	});
-	dataGrid.addColumn(nickNameColumn, "Spitzname");
-	nickNameColumn.setFieldUpdater(new FieldUpdater<UserProxy, String>() {
-	    @Override
-	    public void update(int index, UserProxy object, String value) {
-		// Called when the user changes the value.
-		request_user = requestFactory.userRequest();
-		UserProxy user = request_user.edit(object);
-		user.setNickname(value);
-		request_user.save(user).fire(new Receiver<Void>() {
-		    @Override
-		    public void onSuccess(Void arg0) {
-			dataProvider.refresh();
-		    }
+				});
+			}
 		});
-	    }
-	});
-	dataGrid.setColumnWidth(nickNameColumn, 33, Unit.PCT);
-    }
+		dataGrid.setColumnWidth(firstNameColumn, 33, Unit.PCT);
 
-    public void showGrid() {
-	if (dataProvider.getDataDisplays().size() != 0)
-	    return;
-	dataProvider.addDataDisplay(dataGrid);
+		// lastname column
+		Column<UserProxy, String> lastNameColumn = new Column<UserProxy, String>(new EditTextCell()) {
+			@Override
+			public String getValue(UserProxy object) {
+				return object.getLastname();
+			}
+		};
+		lastNameColumn.setSortable(true);
+		sortHandler.setComparator(lastNameColumn, new Comparator<UserProxy>() {
+			@Override
+			public int compare(UserProxy o1, UserProxy o2) {
+				return o1.getLastname().compareTo(o2.getLastname());
+			}
+		});
+		dataGrid.addColumn(lastNameColumn, "Nachname");
+		lastNameColumn.setFieldUpdater(new FieldUpdater<UserProxy, String>() {
+			@Override
+			public void update(int index, UserProxy object, String value) {
+				// Called when the user changes the value.
+				request_user = requestFactory.userRequest();
+				UserProxy user = request_user.edit(object);
+				user.setLastname(value);
+				request_user.save(user).fire(new Receiver<Void>() {
+					@Override
+					public void onSuccess(Void arg0) {
+						dataProvider.refresh();
+					}
 
-	request_user.findAllUsers().fire(new Receiver<List<UserProxy>>() {
-	    public void onSuccess(List<UserProxy> cards) {
-		dataProvider.getList().clear();
-		dataProvider.getList().addAll(cards);
-		userLoadLabel.setHTML("<p>Status: Card Data loaded</p>");
-	    }
+				});
+			}
+		});
+		dataGrid.setColumnWidth(lastNameColumn, 33, Unit.PCT);
 
-	    @Override
-	    public void onFailure(ServerFailure error) {
-		userLoadLabel.setHTML("<p>" + error.getMessage() + "</p>");
-	    }
-	});
-    }
+		// nickname column
+		Column<UserProxy, String> nickNameColumn = new Column<UserProxy, String>(new EditTextCell()) {
+			@Override
+			public String getValue(UserProxy object) {
+				String nickname = object.getNickname();
+				if (nickname != null)
+					return nickname;
+				else
+					return "";
+			}
+		};
+		nickNameColumn.setSortable(true);
+		sortHandler.setComparator(nickNameColumn, new Comparator<UserProxy>() {
+			@Override
+			public int compare(UserProxy o1, UserProxy o2) {
+				return o1.getNickname().compareTo(o2.getNickname());
+			}
+		});
+		dataGrid.addColumn(nickNameColumn, "Spitzname");
+		nickNameColumn.setFieldUpdater(new FieldUpdater<UserProxy, String>() {
+			@Override
+			public void update(int index, UserProxy object, String value) {
+				// Called when the user changes the value.
+				request_user = requestFactory.userRequest();
+				UserProxy user = request_user.edit(object);
+				user.setNickname(value);
+				request_user.save(user).fire(new Receiver<Void>() {
+					@Override
+					public void onSuccess(Void arg0) {
+						dataProvider.refresh();
+					}
+				});
+			}
+		});
+		dataGrid.setColumnWidth(nickNameColumn, 33, Unit.PCT);
+	}
+
+	public void showGrid() {
+		if (dataProvider.getDataDisplays().size() != 0)
+			return;
+		dataProvider.addDataDisplay(dataGrid);
+
+		request_user.findAllUsers().fire(new Receiver<List<UserProxy>>() {
+			public void onSuccess(List<UserProxy> cards) {
+				dataProvider.getList().clear();
+				dataProvider.getList().addAll(cards);
+				userLoadLabel.setHTML("<p>Status: Card Data loaded</p>");
+			}
+
+			@Override
+			public void onFailure(ServerFailure error) {
+				userLoadLabel.setHTML("<p>" + error.getMessage() + "</p>");
+			}
+		});
+	}
 }

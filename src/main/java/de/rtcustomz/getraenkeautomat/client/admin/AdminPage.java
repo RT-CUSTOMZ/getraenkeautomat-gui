@@ -7,5 +7,6 @@ import de.rtcustomz.getraenkeautomat.client.Page;
 
 public abstract class AdminPage extends Composite implements Page {
 	public FlowPanel page = new FlowPanel();
+
 	public abstract void showGrid();
 }
