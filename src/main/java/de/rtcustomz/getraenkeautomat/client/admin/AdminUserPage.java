@@ -1,4 +1,4 @@
-package de.rtcustomz.getraenkeautomat.client;
+package de.rtcustomz.getraenkeautomat.client.admin;
 
 import java.util.Comparator;
 import java.util.List;
@@ -28,7 +28,7 @@ import de.rtcustomz.getraenkeautomat.client.proxies.UserProxy;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.UserRequest;
 
-public class AdminUserPage extends Page {
+public class AdminUserPage extends AdminPage {
 
     static private AdminUserPage _instance = null;
     private static final String pageName = "Benutzer";
@@ -233,7 +233,7 @@ public class AdminUserPage extends Page {
 	dataGrid.setColumnWidth(nickNameColumn, 33, Unit.PCT);
     }
 
-    private void showGrid() {
+    public void showGrid() {
 	if (dataProvider.getDataDisplays().size() != 0)
 	    return;
 	dataProvider.addDataDisplay(dataGrid);

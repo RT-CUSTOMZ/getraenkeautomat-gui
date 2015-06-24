@@ -1,4 +1,4 @@
-package de.rtcustomz.getraenkeautomat.client;
+package de.rtcustomz.getraenkeautomat.client.admin;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,7 +30,7 @@ import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
-public class AdminSlotPage extends Page {
+public class AdminSlotPage extends AdminPage {
 
     static private AdminSlotPage _instance = null;
     private static final String pageName = "Getränke";
@@ -148,7 +148,7 @@ public class AdminSlotPage extends Page {
 	dataGrid.setColumnWidth(drinkColumn, 20, Unit.PCT);
     }
 
-    private void showGrid() {
+    public void showGrid() {
 	if (dataProvider.getDataDisplays().size() != 0)
 	    return;
 	dataProvider.addDataDisplay(dataGrid);

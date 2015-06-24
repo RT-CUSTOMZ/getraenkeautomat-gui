@@ -1,9 +1,12 @@
-package de.rtcustomz.getraenkeautomat.client;
+package de.rtcustomz.getraenkeautomat.client.admin;
 
 import java.util.LinkedHashMap;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.user.client.ui.RootPanel;
+
+import de.rtcustomz.getraenkeautomat.client.MainLayout;
+import de.rtcustomz.getraenkeautomat.client.Page;
 
 public class AdminGUI implements EntryPoint {
     /**
