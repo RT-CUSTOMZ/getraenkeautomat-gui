@@ -8,10 +8,11 @@ import de.rtcustomz.getraenkeautomat.client.Page;
 
 public abstract class ChartPage extends Composite implements Page, ResizeHandler {
 	public FlowPanel page = new FlowPanel();
-	abstract void drawChart();
+	public abstract void drawChart();
+	public abstract void redrawChart();
 	
 
-	native void console( Object message) /*-{
+	native void console( String message) /*-{
 	    console.log( message );
 	}-*/;
 }

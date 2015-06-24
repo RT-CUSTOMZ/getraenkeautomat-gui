@@ -40,17 +40,28 @@ public class MainLayout extends Composite {
 		initWidget(wrapper);
 	}
 	
+	native void console( Object message) /*-{
+	    console.log( message );
+	}-*/;
+	
 	private void initCharts() {
 		ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART, ChartPackage.CONTROLS);
         chartLoader.loadApi(new Runnable() {
             @Override
             public void run() {
-            	Iterator<Page> it = pages.values().iterator();
-            	
-            	while(it.hasNext()) {
-                	ChartPage page = (ChartPage)it.next();
-                	page.initPage();
+//            	Iterator<Page> it = pages.values().iterator();
+            	for(final Page page : pages.values()) {
+            		final ChartPage chartPage = (ChartPage) page;
+            		//showPage(chartPage);
+            		chartPage.initPage();
+            		chartPage.drawChart();
             	}
+//            	while(it.hasNext()) {
+//                	ChartPage page = (ChartPage)it.next();
+//                	showPage(page);
+//                	page.initPage();
+//                	page.drawChart();
+//            	}
             }
         });
 	}
@@ -69,6 +80,10 @@ public class MainLayout extends Composite {
             	if(pages.containsKey(pageName)) {
             		Page page = pages.get(pageName);
                 	showPage(page);
+                	if(page instanceof ChartPage) {
+                		((ChartPage)page).redrawChart();
+                		//((ChartPage)page).onResize(null);
+                	}
             	}
             	else showPage(ErrorPage.getInstance());
             }

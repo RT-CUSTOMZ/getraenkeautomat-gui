@@ -63,7 +63,7 @@ public class PieChartPage extends ChartPage {
 	public void initPage() {
 		page.add( getPieChart() );
 		
-		drawChart();
+//		drawChart();
 	}
 	
 	private void getHistory() {
@@ -109,7 +109,6 @@ public class PieChartPage extends ChartPage {
 		// chart can only been drawn if history and slots have been loaded
 		if(history == null || slots == null)
 			return;
-		
 		HashMap<String, Integer> drinksObtained = new HashMap<>();
 		
 		// TODO: perhaps SQL statement for that?
@@ -171,6 +170,14 @@ public class PieChartPage extends ChartPage {
 		if(pieChart != null) {
 			pieChart.redraw();
 		}
+	}
+	
+	@Override
+	public void redrawChart() {
+		if(history == null || slots == null || pieChart == null)
+			return;
+		
+		pieChart.redraw();
 	}
 
 }

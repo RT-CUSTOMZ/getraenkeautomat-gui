@@ -37,6 +37,7 @@ public class ColumnChartPage extends ChartPage {
 	private Dashboard dashboard;
 	private NumberRangeFilter numberRangeFilter;
 	private ChartWrapper<ColumnChartOptions> columnChart;
+//	private ColumnChart columnChart;
     private List<HistoryEntryProxy> history;
     private List<SlotProxy> slots;
 	
@@ -68,12 +69,12 @@ public class ColumnChartPage extends ChartPage {
 
 	@Override
 	public void initPage() {
-		console("init page");
+		page.add( getColumnChart() );
 		page.add( getDashboard() );
 		page.add( getNumberRangeFilter() );
 		page.add( getColumnChart() );
 		
-		drawChart();
+//		drawChart();
 	}
 	
 	private void getHistory() {
@@ -84,9 +85,9 @@ public class ColumnChartPage extends ChartPage {
 			public void onSuccess(List<HistoryEntryProxy> response) {
 				console("history loaded");
 				history = response;
-//				if(dashboard != null) {
-//					drawChart();
-//				}
+				if(dashboard != null) {
+					drawChart();
+				}
 			}
 			
 		});
@@ -100,13 +101,21 @@ public class ColumnChartPage extends ChartPage {
 			public void onSuccess(List<SlotProxy> response) {
 				console("slots loaded");
 				slots = response;
-//				if(dashboard != null) {
-//					drawChart();
-//				}
+				if(dashboard != null) {
+					drawChart();
+				}
 			}
 			
 		});
 	}
+	
+//	private Widget getColumnChart() {
+//		if (columnChart == null) {
+//			columnChart = new ColumnChart();
+//	        columnChart.getElement().setId("chart");
+//		}
+//		return columnChart;
+//	}
 	
 	private Widget getDashboard() {
 		if (dashboard == null) {
@@ -133,11 +142,10 @@ public class ColumnChartPage extends ChartPage {
 	
 	@Override
 	public void drawChart() {
+		console("drawChart");
 		// chart can only been drawn if history and slots have been loaded
 		if(history == null || slots == null)
 			return;
-		console("draw chart");
-		
 		HashMap<String, Integer> drinksObtained = new HashMap<>();
 		
 		// TODO: perhaps SQL statement for that?
@@ -155,6 +163,9 @@ public class ColumnChartPage extends ChartPage {
             
             drinksObtained.put(drink, count);
 		}
+		console("dashboard vorher:");
+		console(dashboard.getElement().toString());
+		console("");
 		
 		// Prepare the data
 		DataTable dataTable = DataTable.create();
@@ -171,34 +182,71 @@ public class ColumnChartPage extends ChartPage {
 			dataTable.setValue(i, 0, drink);	// set drink name
 			dataTable.setValue(i, 1, count);	// set count of slots in history
 		}
-		console(dataTable);
+
+		console("datatable:");
+		console(dataTable.toString());
+		console("");
+		
 		// Set control options
 		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
 		numberRangeFilterOptions.setFilterColumnLabel("entnommen");
 		numberRangeFilterOptions.setMinValue(1);
 		numberRangeFilterOptions.setMaxValue(drinksObtained.size());
-		console(numberRangeFilterOptions);
+		
+		console("rangefilteroptions:");
+		console(numberRangeFilterOptions.toString());
+		console("");
+		
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
-		console(numberRangeFilter);
+		
+		console("rangefilter after setoptions:");
+		console(numberRangeFilter.toString());
+		console("");
 		
 		
 		ColumnChartOptions options = ColumnChartOptions.create();
 		options.setTitle("Getränke entnommen gesamt");
-		console(options);
+
+		console("chartoptions:");
+		console(options.toString());
+		console("");
+		
 		columnChart.setOptions(options);
-		console(columnChart);
+
+		console("chart after setoptions:");
+		console(columnChart.toString());
+		console("");
+		
+		
+//		columnChart.draw(dataTable, options);
 		
 		dashboard.bind(numberRangeFilter, columnChart);
-		console(dashboard);
+		
+		console("dashboard after bind:");
+		console(dashboard.toString());
+		console("");
+		
 		dashboard.draw(dataTable);
-		console("finished");
+		
+		console("dashboard after draw:");
+		console(dashboard.getElement().toString());
+		console("");
 	}
 
 	@Override
 	public void onResize(ResizeEvent event) {
-		if(dashboard != null) {
-			dashboard.redraw();
-		}
+//		if(dashboard != null) {
+//			dashboard.redraw();
+//		}
+	}
+
+	@Override
+	public void redrawChart() {
+		if(history == null || slots == null || dashboard == null)
+			return;
+		
+		dashboard.getElement().setInnerHTML("");
+		dashboard.redraw();
 	}
 
 }
