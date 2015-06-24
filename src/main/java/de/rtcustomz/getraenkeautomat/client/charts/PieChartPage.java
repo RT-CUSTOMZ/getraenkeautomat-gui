@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ColumnType;
@@ -39,16 +41,8 @@ public class PieChartPage extends ChartPage {
 		getSlots();
 		getHistory();
 //        initPage();
-
-        // draw new PieChart if user resizes the browser window
-//        Window.addResizeHandler(new ResizeHandler() {
-//			@Override
-//			public void onResize(ResizeEvent event) {
-//				if(pieChart != null) {
-//					drawChart();
-//				}
-//			}
-//        });
+		
+		Window.addResizeHandler(this);
         
         initWidget(page);
 	}
@@ -170,6 +164,13 @@ public class PieChartPage extends ChartPage {
 		
 //		dashboard.bind(numberRangeFilter, pieChart);
 //		dashboard.draw(dataTable);
+	}
+
+	@Override
+	public void onResize(ResizeEvent event) {
+		if(pieChart != null) {
+			pieChart.redraw();
+		}
 	}
 
 }

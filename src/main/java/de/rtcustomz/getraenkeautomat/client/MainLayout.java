@@ -1,6 +1,8 @@
 package de.rtcustomz.getraenkeautomat.client;
 
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
 
 import com.google.gwt.dom.client.HeadingElement;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
@@ -13,7 +15,6 @@ import com.google.gwt.user.client.ui.Widget;
 import com.googlecode.gwt.charts.client.ChartLoader;
 import com.googlecode.gwt.charts.client.ChartPackage;
 
-import de.rtcustomz.getraenkeautomat.client.admin.AdminPage;
 import de.rtcustomz.getraenkeautomat.client.charts.ChartPage;
 
 public class MainLayout extends Composite {
@@ -24,30 +25,42 @@ public class MainLayout extends Composite {
 	
 	public MainLayout(final LinkedHashMap<String, Page> pages) {
 		this.pages = pages;
-		final Page startPage = pages.entrySet().iterator().next().getValue();
-		
-		initHistory();
 		
 		initPage();
 		
-		if(startPage instanceof ChartPage) {
-			ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART, ChartPackage.CONTROLS);
-	        chartLoader.loadApi(new Runnable() {
-	            @Override
-	            public void run() {
-	            	ChartPage page = (ChartPage)startPage;
-	            	page.initPage();
-	            	showPage(page);
-	            }
-	        });
-		} else {
-			showPage((AdminPage)startPage);
+		final Entry<String, Page> firstPage = pages.entrySet().iterator().next();
+		
+		if(firstPage.getValue() instanceof ChartPage) {
+			initCharts();
 		}
+		
+		initHistory(firstPage.getKey());
+		// showPage(startPage);
 		
 		initWidget(wrapper);
 	}
 	
-	private void initHistory() {
+	private void initCharts() {
+		ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART, ChartPackage.CONTROLS);
+        chartLoader.loadApi(new Runnable() {
+            @Override
+            public void run() {
+            	Iterator<Page> it = pages.values().iterator();
+            	
+            	while(it.hasNext()) {
+                	ChartPage page = (ChartPage)it.next();
+                	page.initPage();
+            	}
+            }
+        });
+	}
+
+	private void initHistory(String firstPage) {
+		String initToken = History.getToken();
+	    if (initToken.length() == 0) {
+	      History.newItem(firstPage);
+	    }
+		
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
 			
             @Override
@@ -55,14 +68,12 @@ public class MainLayout extends Composite {
             	final String pageName = event.getValue();
             	if(pages.containsKey(pageName)) {
             		Page page = pages.get(pageName);
-            		if(page instanceof ChartPage)
-                		showPage((ChartPage)page);
-            		else
-                		showPage((AdminPage)page);
+                	showPage(page);
             	}
             	else showPage(ErrorPage.getInstance());
             }
 		});
+
         History.fireCurrentHistoryState();
 	}
 	
@@ -89,9 +100,9 @@ public class MainLayout extends Composite {
     	wrapper.add(footer);
 	}
 	
-	private void showPage(Widget page)
+	private void showPage(Page page)
 	{
 		content.clear();
-		content.add(page);
+		content.add((Widget)page);
 	}
 }

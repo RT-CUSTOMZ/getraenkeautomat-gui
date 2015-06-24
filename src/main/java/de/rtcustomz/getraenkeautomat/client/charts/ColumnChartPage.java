@@ -5,8 +5,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ChartType;
@@ -47,14 +49,7 @@ public class ColumnChartPage extends ChartPage {
 //        initPage();
 
         // draw new PieChart if user resizes the browser window
-//        Window.addResizeHandler(new ResizeHandler() {
-//			@Override
-//			public void onResize(ResizeEvent event) {
-//				if(dashboard != null) {
-//					drawChart();
-//				}
-//			}
-//        });
+        Window.addResizeHandler(this);
         
         initWidget(page);
 	}
@@ -73,9 +68,10 @@ public class ColumnChartPage extends ChartPage {
 
 	@Override
 	public void initPage() {
+		console("init page");
 		page.add( getDashboard() );
-		page.add( getColumnChart() );
 		page.add( getNumberRangeFilter() );
+		page.add( getColumnChart() );
 		
 		drawChart();
 	}
@@ -86,6 +82,7 @@ public class ColumnChartPage extends ChartPage {
 
 			@Override
 			public void onSuccess(List<HistoryEntryProxy> response) {
+				console("history loaded");
 				history = response;
 //				if(dashboard != null) {
 //					drawChart();
@@ -101,6 +98,7 @@ public class ColumnChartPage extends ChartPage {
 
 			@Override
 			public void onSuccess(List<SlotProxy> response) {
+				console("slots loaded");
 				slots = response;
 //				if(dashboard != null) {
 //					drawChart();
@@ -138,6 +136,7 @@ public class ColumnChartPage extends ChartPage {
 		// chart can only been drawn if history and slots have been loaded
 		if(history == null || slots == null)
 			return;
+		console("draw chart");
 		
 		HashMap<String, Integer> drinksObtained = new HashMap<>();
 		
@@ -172,21 +171,34 @@ public class ColumnChartPage extends ChartPage {
 			dataTable.setValue(i, 0, drink);	// set drink name
 			dataTable.setValue(i, 1, count);	// set count of slots in history
 		}
-		
+		console(dataTable);
 		// Set control options
 		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
 		numberRangeFilterOptions.setFilterColumnLabel("entnommen");
 		numberRangeFilterOptions.setMinValue(1);
 		numberRangeFilterOptions.setMaxValue(drinksObtained.size());
+		console(numberRangeFilterOptions);
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
+		console(numberRangeFilter);
 		
 		
 		ColumnChartOptions options = ColumnChartOptions.create();
 		options.setTitle("Getränke entnommen gesamt");
+		console(options);
 		columnChart.setOptions(options);
+		console(columnChart);
 		
 		dashboard.bind(numberRangeFilter, columnChart);
+		console(dashboard);
 		dashboard.draw(dataTable);
+		console("finished");
+	}
+
+	@Override
+	public void onResize(ResizeEvent event) {
+		if(dashboard != null) {
+			dashboard.redraw();
+		}
 	}
 
 }
