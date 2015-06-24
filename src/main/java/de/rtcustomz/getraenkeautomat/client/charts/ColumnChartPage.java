@@ -83,7 +83,6 @@ public class ColumnChartPage extends ChartPage {
 
 			@Override
 			public void onSuccess(List<HistoryEntryProxy> response) {
-				console("history loaded");
 				history = response;
 				if(dashboard != null) {
 					drawChart();
@@ -99,7 +98,6 @@ public class ColumnChartPage extends ChartPage {
 
 			@Override
 			public void onSuccess(List<SlotProxy> response) {
-				console("slots loaded");
 				slots = response;
 				if(dashboard != null) {
 					drawChart();
@@ -142,7 +140,6 @@ public class ColumnChartPage extends ChartPage {
 	
 	@Override
 	public void drawChart() {
-		console("drawChart");
 		// chart can only been drawn if history and slots have been loaded
 		if(history == null || slots == null)
 			return;
@@ -163,9 +160,6 @@ public class ColumnChartPage extends ChartPage {
             
             drinksObtained.put(drink, count);
 		}
-		console("dashboard vorher:");
-		console(dashboard.getElement().toString());
-		console("");
 		
 		// Prepare the data
 		DataTable dataTable = DataTable.create();
@@ -182,62 +176,29 @@ public class ColumnChartPage extends ChartPage {
 			dataTable.setValue(i, 0, drink);	// set drink name
 			dataTable.setValue(i, 1, count);	// set count of slots in history
 		}
-
-		console("datatable:");
-		console(dataTable.toString());
-		console("");
 		
 		// Set control options
 		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
 		numberRangeFilterOptions.setFilterColumnLabel("entnommen");
 		numberRangeFilterOptions.setMinValue(1);
 		numberRangeFilterOptions.setMaxValue(drinksObtained.size());
-		
-		console("rangefilteroptions:");
-		console(numberRangeFilterOptions.toString());
-		console("");
-		
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
-		
-		console("rangefilter after setoptions:");
-		console(numberRangeFilter.toString());
-		console("");
-		
 		
 		ColumnChartOptions options = ColumnChartOptions.create();
 		options.setTitle("Getränke entnommen gesamt");
-
-		console("chartoptions:");
-		console(options.toString());
-		console("");
-		
 		columnChart.setOptions(options);
-
-		console("chart after setoptions:");
-		console(columnChart.toString());
-		console("");
-		
 		
 //		columnChart.draw(dataTable, options);
 		
 		dashboard.bind(numberRangeFilter, columnChart);
-		
-		console("dashboard after bind:");
-		console(dashboard.toString());
-		console("");
-		
 		dashboard.draw(dataTable);
-		
-		console("dashboard after draw:");
-		console(dashboard.getElement().toString());
-		console("");
 	}
 
 	@Override
 	public void onResize(ResizeEvent event) {
-//		if(dashboard != null) {
-//			dashboard.redraw();
-//		}
+		if(dashboard != null) {
+			dashboard.redraw();
+		}
 	}
 
 	@Override
