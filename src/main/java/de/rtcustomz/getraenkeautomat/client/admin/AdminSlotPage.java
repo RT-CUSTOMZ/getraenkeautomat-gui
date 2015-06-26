@@ -68,7 +68,7 @@ public class AdminSlotPage extends AdminPage {
 	}
 
 	/**
-	 * Updates the first name.
+	 * Updates the drink name.
 	 */
 	private static class DrinkChange extends PendingChange<String> {
 
@@ -161,7 +161,6 @@ public class AdminSlotPage extends AdminPage {
 		dbox.setAutoHideOnHistoryEventsEnabled(true);
 		dbox.setText("Daten Speichern ...");
 		dbox.setWidget(dialogpanel);
-		// dbox.setSize("200px", "150px");
 
 		initTableColumns(sortHandler);
 
