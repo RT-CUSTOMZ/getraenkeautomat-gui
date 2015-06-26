@@ -19,6 +19,7 @@ import com.googlecode.gwt.charts.client.controls.Dashboard;
 import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilter;
 import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilterOptions;
 import com.googlecode.gwt.charts.client.corechart.ColumnChartOptions;
+import com.googlecode.gwt.charts.client.corechart.LineChartOptions;
 
 import de.rtcustomz.getraenkeautomat.client.proxies.HistoryEntryProxy;
 import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
@@ -26,22 +27,22 @@ import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
 import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
-public class ColumnChartPage extends ChartPage {
+public class LineChartPage extends ChartPage {
 	
-	static private ColumnChartPage _instance = null;
-	private static final String pageName = "Column Chart";
+	static private LineChartPage _instance = null;
+	private static final String pageName = "Line Chart";
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
 	
 	private Dashboard dashboard;
 	private NumberRangeFilter numberRangeFilter;
-	private ChartWrapper<ColumnChartOptions> columnChart;
+	private ChartWrapper<LineChartOptions> lineChart;
 //	private ColumnChart columnChart;
     private List<HistoryEntryProxy> history;
     private List<SlotProxy> slots;
 	
-	public ColumnChartPage()
+	public LineChartPage()
 	{
 		requestFactory.initialize(eventBus);
 		
@@ -55,9 +56,9 @@ public class ColumnChartPage extends ChartPage {
         initWidget(page);
 	}
 	
-    public static ColumnChartPage getInstance(){
+    public static LineChartPage getInstance(){
         if(null == _instance) {
-            _instance = new ColumnChartPage();
+            _instance = new LineChartPage();
         }
         return _instance;
     }
@@ -69,7 +70,7 @@ public class ColumnChartPage extends ChartPage {
 
 	@Override
 	public void initPage() {
-		page.add( getColumnChart() );
+		page.add( getLineChart() );
 		page.add( getDashboard() );
 		page.add( getNumberRangeFilter() );
 //		page.add( getColumnChart() );
@@ -123,12 +124,12 @@ public class ColumnChartPage extends ChartPage {
 		return dashboard;
 	}
 	
-	private ChartWrapper<ColumnChartOptions> getColumnChart() {
-		if (columnChart == null) {
-			columnChart = new ChartWrapper<ColumnChartOptions>();
-			columnChart.setChartType(ChartType.COLUMN);
+	private ChartWrapper<LineChartOptions> getLineChart() {
+		if (lineChart == null) {
+			lineChart = new ChartWrapper<LineChartOptions>();
+			lineChart.setChartType(ChartType.LINE);
 		}
-		return columnChart;
+		return lineChart;
 	}
 	
 	private NumberRangeFilter getNumberRangeFilter() {
@@ -184,13 +185,13 @@ public class ColumnChartPage extends ChartPage {
 		numberRangeFilterOptions.setMaxValue(drinksObtained.size());
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
 		
-		ColumnChartOptions options = ColumnChartOptions.create();
+		LineChartOptions options = LineChartOptions.create();
 		options.setTitle("Getränke entnommen gesamt");
-		columnChart.setOptions(options);
+		lineChart.setOptions(options);
 		
 //		columnChart.draw(dataTable, options);
 		
-		dashboard.bind(numberRangeFilter, columnChart);
+		dashboard.bind(numberRangeFilter, lineChart);
 		dashboard.draw(dataTable);
 	}
 

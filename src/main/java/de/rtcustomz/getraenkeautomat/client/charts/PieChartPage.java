@@ -1,45 +1,54 @@
 package de.rtcustomz.getraenkeautomat.client.charts;
 
+import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ColumnType;
+import com.googlecode.gwt.charts.client.DataSource;
 import com.googlecode.gwt.charts.client.DataTable;
 import com.googlecode.gwt.charts.client.corechart.PieChart;
 import com.googlecode.gwt.charts.client.corechart.PieChartOptions;
 
-import de.rtcustomz.getraenkeautomat.client.proxies.HistoryEntryProxy;
-import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
+import de.rtcustomz.getraenkeautomat.client.proxies.PieChartDataProxy;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
-import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
 public class PieChartPage extends ChartPage {
 	
 	static private PieChartPage _instance = null;
 	private static final String pageName = "Pie Chart";
+	private static final int SLOT_COUNT = 6;
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
 	
     private PieChart pieChart;
-    private List<HistoryEntryProxy> history;
-    private List<SlotProxy> slots;
+    private Map<String, Long> historySelectedMonth;
+    private Map<String, Long> historyMonthBefore;
+    
+    private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
+    private int month = 5;//Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) ); // = 5;
+    
+    private boolean diffMode = true;
 	
 	public PieChartPage()
 	{
 		requestFactory.initialize(eventBus);
-		
-		getSlots();
+
 		getHistory();
+		
 //        initPage();
 		
 		Window.addResizeHandler(this);
@@ -61,33 +70,47 @@ public class PieChartPage extends ChartPage {
 
 	@Override
 	public void initPage() {
+		
 		page.add( getPieChart() );
 		
 //		drawChart();
 	}
 	
 	private void getHistory() {
-		HistoryRequest historyrequest = requestFactory.historyRequest();
-		historyrequest.findAllHistoryEntries().with("slot").fire(new Receiver<List<HistoryEntryProxy>>() {
+		HistoryRequest newhistory = requestFactory.historyRequest();
+		newhistory.getPieChartData(month, year).fire(new Receiver<List<PieChartDataProxy>>() {
 
 			@Override
-			public void onSuccess(List<HistoryEntryProxy> response) {
-				history = response;
+			public void onSuccess(List<PieChartDataProxy> response) {
+				historySelectedMonth = new HashMap<>();
+				for(PieChartDataProxy row : response) {
+					historySelectedMonth.put(row.getDrink(), row.getCount());
+				}
+				//history = response;
 				if(pieChart != null) {
 					drawChart();
 				}
 			}
 			
 		});
-	}
-
-	private void getSlots() {
-		SlotRequest slotrequest = requestFactory.slotRequest();
-    	slotrequest.findAllSlots().fire(new Receiver<List<SlotProxy>>() {
+		
+		int yearOfPreviousMonth = year, previousMonth = month-1;
+		
+		if(month == 1) {
+			yearOfPreviousMonth = year-1;
+			previousMonth = 12;
+		}
+		
+		HistoryRequest oldhistory = requestFactory.historyRequest();
+		oldhistory.getPieChartData(previousMonth, yearOfPreviousMonth).fire(new Receiver<List<PieChartDataProxy>>() {
 
 			@Override
-			public void onSuccess(List<SlotProxy> response) {
-				slots = response;
+			public void onSuccess(List<PieChartDataProxy> response) {
+				historyMonthBefore = new HashMap<>();
+				for(PieChartDataProxy row : response) {
+					historyMonthBefore.put(row.getDrink(), row.getCount());
+				}
+				//history = response;
 				if(pieChart != null) {
 					drawChart();
 				}
@@ -106,63 +129,54 @@ public class PieChartPage extends ChartPage {
 	
 	@Override
 	public void drawChart() {
-		// chart can only been drawn if history and slots have been loaded
-		if(history == null || slots == null)
+		// chart can only been drawn if history has been loaded
+		if(historySelectedMonth == null)
 			return;
-		HashMap<String, Integer> drinksObtained = new HashMap<>();
-		
-		// TODO: perhaps SQL statement for that?
-		// count how much drinks has been obtained from every slot
-		Iterator<HistoryEntryProxy> it = history.iterator();
-		while(it.hasNext()) {
-			HistoryEntryProxy historyEntry = it.next();
-			
-			String drink = historyEntry.getSlot().getDrink();
-			
-			Integer count = drinksObtained.get(drink);
-            if (count == null)
-                count = 0;
-            count++;
-            
-            drinksObtained.put(drink, count);
-		}
 		
 		// Prepare the data
-		DataTable dataTable = DataTable.create();
+		DataTable newData = DataTable.create();
+		addRows(newData, historySelectedMonth.entrySet());
+		
+		PieChartOptions options = PieChartOptions.create();
+		
+		DataSource drawData;
+		String title;
+		
+		if(diffMode) {
+			DataTable oldData = DataTable.create();
+			addRows(oldData, historyMonthBefore.entrySet());
+			
+			// TODO: der mag's nicht, wenn keine aktuellen Daten vorliegen
+			title = "Getränke entnommen im Monat " + month + "." + year + " im Vergleich zum Vormonat:";
+			drawData = pieChart.computeDiff(oldData, newData);
+		} else {
+			title = "Getränke entnommen im Monat " + month + "." + year + ":";
+			
+			drawData = newData;
+		}
+		
+		options.setTitle(title);
+		
+		pieChart.draw(drawData, options);
+	}
+
+	private void addRows(DataTable dataTable, Set<Entry<String, Long>> entrySet) {
 		dataTable.addColumn(ColumnType.STRING, "Getränk");
 		dataTable.addColumn(ColumnType.NUMBER, "entnommen");
 		
-		// add so much entries in PieChart as slots exists
-		dataTable.addRows(slots.size());
-		for (int i = 0; i < slots.size(); i++) {
-			String drink = slots.get(i).getDrink();
-			Integer count = drinksObtained.get(drink);
-			if(count == null)
-				count = 0;
+		dataTable.addRows(SLOT_COUNT);
+		
+		int i = 0;
+		
+		for (Entry<String, Long> entry : entrySet) {
+			String drink = entry.getKey();
+			Long count = entry.getValue();
+			
 			dataTable.setValue(i, 0, drink);	// set drink name
 			dataTable.setValue(i, 1, count);	// set count of slots in history
+			
+			i++;
 		}
-		
-		// Set control options
-//		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
-//		numberRangeFilterOptions.setFilterColumnLabel("entnommen");
-//		numberRangeFilterOptions.setMinValue(1);
-//		numberRangeFilterOptions.setMaxValue(drinksObtained.size());
-//		numberRangeFilter.setOptions(numberRangeFilterOptions);
-		
-		
-		PieChartOptions options = PieChartOptions.create();
-		options.setTitle("Getränke entnommen gesamt");
-//		pieChart.setOptions(options);
-		
-//		pieChart.setWidth("100%");
-//		pieChart.setHeight("100%");
-		
-		// Draw the chart
-		pieChart.draw(dataTable, options);
-		
-//		dashboard.bind(numberRangeFilter, pieChart);
-//		dashboard.draw(dataTable);
 	}
 
 	@Override
@@ -174,7 +188,7 @@ public class PieChartPage extends ChartPage {
 	
 	@Override
 	public void redrawChart() {
-		if(history == null || slots == null || pieChart == null)
+		if(historySelectedMonth == null || pieChart == null)
 			return;
 		
 		pieChart.redraw();

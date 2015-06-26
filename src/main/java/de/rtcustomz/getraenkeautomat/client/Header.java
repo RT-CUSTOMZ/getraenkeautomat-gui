@@ -7,7 +7,6 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.Image;
 
-// TODO: use HeaderPanel instead? => http://www.gwtproject.org/javadoc/latest/com/google/gwt/user/client/ui/HeaderPanel.html
 public class Header extends Composite {	
 	public Header() {
 		FlowPanel mainPanel = new FlowPanel();

@@ -8,6 +8,7 @@ import com.google.web.bindery.requestfactory.shared.Service;
 
 import de.rtcustomz.getraenkeautomat.client.proxies.CardProxy;
 import de.rtcustomz.getraenkeautomat.client.proxies.HistoryEntryProxy;
+import de.rtcustomz.getraenkeautomat.client.proxies.PieChartDataProxy;
 import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
 import de.rtcustomz.getraenkeautomat.server.daos.HistoryEntryDAO;
 
@@ -26,4 +27,9 @@ public interface HistoryRequest extends RequestContext {
 	Request<HistoryEntryProxy> createHistoryEntry(CardProxy card, SlotProxy slot);
 
 	Request<Void> delete(HistoryEntryProxy history);
+	
+	Request<List<PieChartDataProxy>> getPieChartData(int month, int year);
+	
+//	Request<Map<String, Integer>> getPieChartData(int month, int year);
+//	Request<List<String>> getPieChartData(int month, int year);
 }

@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.persistence.Version;
 
 @Entity
@@ -34,6 +35,9 @@ public class HistoryEntry {
 	@ManyToOne
 	@JoinColumn(name="slot_id", referencedColumnName="id", nullable=false, updatable=false)
 	private Slot slot;
+	
+	@Transient
+	PieChartData pieChartData;
 	
 	public HistoryEntry() {}
 	

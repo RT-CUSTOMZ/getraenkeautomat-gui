@@ -20,6 +20,7 @@ public class GetraenkeautomatGUI implements EntryPoint {
 		LinkedHashMap<String, Page> pages = new LinkedHashMap<>();
 		pages.put(PieChartPage.getPageName(),PieChartPage.getInstance());
 		pages.put(ColumnChartPage.getPageName(),ColumnChartPage.getInstance());
+		pages.put(LineChartPage.getPageName(),LineChartPage.getInstance());
 		
 		MainLayout mainLayout = new MainLayout(pages);
 		

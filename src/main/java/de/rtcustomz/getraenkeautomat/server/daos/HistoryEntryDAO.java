@@ -8,6 +8,7 @@ import javax.persistence.TypedQuery;
 
 import de.rtcustomz.getraenkeautomat.server.entities.Card;
 import de.rtcustomz.getraenkeautomat.server.entities.HistoryEntry;
+import de.rtcustomz.getraenkeautomat.server.entities.PieChartData;
 import de.rtcustomz.getraenkeautomat.server.entities.Slot;
 import de.rtcustomz.getraenkeautomat.server.util.DatabaseController;
 
@@ -30,6 +31,24 @@ public class HistoryEntryDAO {
 		q.setFirstResult(firstResult);
 		q.setMaxResults(maxResults);
 		return q.getResultList();
+	}
+	
+	public static List<PieChartData> getPieChartData(int month, int year) {
+		final String queryString;
+		
+		queryString = "SELECT new de.rtcustomz.getraenkeautomat.server.entities.PieChartData(s.drink AS drink, count(*) AS count) "
+					+ "FROM HistoryEntry h JOIN h.slot s "
+					+ "WHERE month(h.time) = :month AND year(h.time) = :year "
+					+ "GROUP BY s.drink";
+		
+		TypedQuery<PieChartData> q = em.createQuery(queryString, PieChartData.class);
+		
+		q.setParameter("month", month);
+		q.setParameter("year", year);
+		
+		final List<PieChartData> resultList = q.getResultList();
+		
+		return resultList;
 	}
 	
 	public static HistoryEntry findById(Long id) {
