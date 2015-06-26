@@ -4,17 +4,23 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.EditTextCell;
 import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.cell.client.SelectionCell;
 import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.ColumnSortEvent.ListHandler;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.SimplePager;
 import com.google.gwt.user.cellview.client.SimplePager.TextLocation;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.view.client.DefaultSelectionEventManager;
@@ -34,25 +40,133 @@ import de.rtcustomz.getraenkeautomat.shared.requests.UserRequest;
 
 public class AdminCardPage extends AdminPage {
 
+	/**
+	 * A pending change to a {@link CardProxy}. Changes aren't committed
+	 * immediately to illustrate that cells can remember their pending changes.
+	 * 
+	 * @param <T>
+	 *            the data type being changed
+	 */
+	private abstract static class PendingChange<T> {
+		private final CardProxy card;
+		private final T value;
+
+		public PendingChange(CardProxy card, T value) {
+			this.card = card;
+			this.value = value;
+		}
+
+		/**
+		 * Commit the change to the contact.
+		 */
+		public void commit() {
+			doCommit(card, value);
+		}
+
+		/**
+		 * Update the appropriate field in the {@link ContactInfo}.
+		 * 
+		 * @param card
+		 *            the contact to update
+		 * @param value
+		 *            the new value
+		 */
+		protected abstract void doCommit(CardProxy card, T value);
+	}
+
+	/**
+	 * Updates the card description.
+	 */
+	private static class DescriptionChange extends PendingChange<String> {
+
+		public DescriptionChange(CardProxy card, String value) {
+			super(card, value);
+		}
+
+		@Override
+		protected void doCommit(CardProxy card, String value) {
+			request_card = requestFactory.cardRequest();
+			CardProxy newcard = request_card.edit(card);
+			newcard.setDescription(value);
+			request_card.save(newcard).to(new Receiver<Void>() {
+				@Override
+				public void onSuccess(Void arg0) {
+				}
+
+				@Override
+				public void onFailure(ServerFailure error) {
+					errorFlag = true;
+					errorString = error.getMessage();
+				}
+			});
+		}
+	}
+
+	/**
+	 * Updates the card description.
+	 */
+	private static class UserChange extends PendingChange<String> {
+
+		public UserChange(CardProxy card, String value) {
+			super(card, value);
+		}
+
+		@Override
+		protected void doCommit(CardProxy card, String value) {
+			for (UserProxy user : userlist) {
+				String name = getUserDisplayName(user);
+				if (name.equals(value)) {
+					request_card = requestFactory.cardRequest();
+					CardProxy newcard = request_card.edit(card);
+					newcard.setUser(user);
+					request_card.save(newcard).with("user").to(new Receiver<Void>() {
+						@Override
+						public void onSuccess(Void arg0) {
+						}
+
+						@Override
+						public void onFailure(ServerFailure error) {
+							errorFlag = true;
+							errorString = error.getMessage();
+						}
+					});
+				}
+			}
+		}
+	}
+
 	static private AdminCardPage _instance = null;
 	private static final String pageName = "Karten";
 
-	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
-	CardRequest request_card = requestFactory.cardRequest();
-	// CardProxy newCardProxy = request_card.create(CardProxy.class);
+	private final static ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
+	static CardRequest request_card = requestFactory.cardRequest();
 	UserRequest request_user = requestFactory.userRequest();
-	// UserProxy newUserProxy = request_user.create(UserProxy.class);
 
 	final EventBus eventBus = new SimpleEventBus();
 
 	DataGrid<CardProxy> dataGrid;
 	SimplePager pager;
 
-	private final ListDataProvider<CardProxy> dataProvider = new ListDataProvider<CardProxy>();
-	List<UserProxy> userlist = new ArrayList<UserProxy>();
+	private final static ListDataProvider<CardProxy> dataProvider = new ListDataProvider<CardProxy>();
+	private List<PendingChange<?>> pendingChanges = new ArrayList<PendingChange<?>>();
+	final SelectionModel<CardProxy> selectionModel = new MultiSelectionModel<CardProxy>();
+	static List<UserProxy> userlist = new ArrayList<UserProxy>();
 
 	final HTML cardLoadLabel = new HTML();
 	final HTML userLoadLabel = new HTML();
+	final Button save = new Button("Speichern");
+	final static DialogBox save_dbox = new DialogBox(true);
+	final static HTML saveStatusLabel = new HTML();
+
+	final Button delete = new Button("Löschmodus");
+	final static DialogBox delete_dbox = new DialogBox(true);
+	final static HTML deleteStatusLabel = new HTML();
+
+	static boolean errorFlag = false;
+	static String errorString;
+
+	static boolean errorFlagDelete = false;
+	static String errorStringDelete;
 
 	public AdminCardPage() {
 		initPage();
@@ -87,14 +201,65 @@ public class AdminCardPage extends AdminPage {
 		pager = new SimplePager(TextLocation.CENTER, pagerResources, false, 0, true);
 		pager.setDisplay(dataGrid);
 
-		final SelectionModel<CardProxy> selectionModel = new MultiSelectionModel<CardProxy>();
 		dataGrid.setSelectionModel(selectionModel, DefaultSelectionEventManager.<CardProxy> createCheckboxManager());
+
+		initSaveDialog();
+		initDeleteDialog();
+
+		// initTableColumns(sortHandler); moved to user request success
+
+		// showGrid(); moved to user request success
+
+		save.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				// Commit the changes
+				request_card = requestFactory.cardRequest();
+				for (PendingChange<?> pendingChange : pendingChanges) {
+					pendingChange.commit();
+				}
+				pendingChanges.clear();
+				if (request_card.isChanged())
+					request_card.fire(new Receiver<Void>() {
+						@Override
+						public void onSuccess(Void arg0) {
+							if (errorFlag)
+								saveStatusLabel.setHTML("<p>Datenbankfehler: " + errorString + "</p>");
+							else {
+								saveStatusLabel.setHTML("<p>Speichern erfolgreich!</p>");
+								save.removeFromParent();
+							}
+							save_dbox.center();
+						}
+
+						@Override
+						public void onFailure(ServerFailure error) {
+							saveStatusLabel.setHTML("<p>Serverfehler: " + error.getMessage() + "</p>");
+							save_dbox.center();
+						}
+					});
+
+				// Push the changes to the views.
+				dataProvider.refresh();
+			}
+		});
+
+		delete.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				deleteStatusLabel.setText("");
+				if (dataGrid.getColumnCount() < 5) {
+					setDeleteColumn(true);
+					delete.setText("Auswahl löschen");
+				} else {
+					delete_dbox.center();
+				}
+			}
+		});
 
 		request_user.findAllUsers().fire(new Receiver<List<UserProxy>>() {
 			@Override
 			public void onSuccess(List<UserProxy> users) {
 				setUserList(users);
-				initTableColumns(selectionModel, sortHandler);
+				initTableColumns(sortHandler);
 				showGrid();
 				userLoadLabel.setHTML("<p>Status: User Data loaded</p>");
 			}
@@ -109,30 +274,13 @@ public class AdminCardPage extends AdminPage {
 		page.add(userLoadLabel);
 		page.add(dataGrid);
 		page.add(pager);
+		page.add(delete);
 	}
 
 	/**
 	 * Add the columns to the table.
 	 */
-	private void initTableColumns(final SelectionModel<CardProxy> selectionModel, ListHandler<CardProxy> sortHandler) {
-		// // Checkbox column. This table will uses a checkbox column for
-		// selection.
-		// // Alternatively, you can call dataGrid.setSelectionEnabled(true) to
-		// enable
-		// // mouse selection.
-		// Column<CardProxy, Boolean> checkColumn =
-		// new Column<CardProxy, Boolean>(new CheckboxCell(true, false)) {
-		// @Override
-		// public Boolean getValue(CardProxy object) {
-		// // Get the value from the selection model.
-		// return selectionModel.isSelected(object);
-		// }
-		// };
-		// dataGrid.addColumn(checkColumn,
-		// SafeHtmlUtils.fromSafeConstant("<br/>"));
-		// dataGrid.setColumnWidth(checkColumn, 40, Unit.PX);
-		// final List<CardProxy> card_list = new ArrayList<CardProxy>();
-
+	private void initTableColumns(ListHandler<CardProxy> sortHandler) {
 		// card id column
 		Column<CardProxy, String> idColumn = new Column<CardProxy, String>(new TextCell()) {
 			@Override
@@ -186,23 +334,15 @@ public class AdminCardPage extends AdminPage {
 			@Override
 			public void update(int index, CardProxy object, String value) {
 				// Called when the user changes the value.
-				request_card = requestFactory.cardRequest();
-				CardProxy card = request_card.edit(object);
-				card.setDescription(value);
-				request_card.save(card).fire(new Receiver<Void>() {
-					@Override
-					public void onSuccess(Void arg0) {
-						dataProvider.refresh();
-					}
+				if (!save.isAttached())
+					page.add(save);
+				pendingChanges.add(new DescriptionChange(object, value));
 
-				});
 			}
 		});
 		dataGrid.setColumnWidth(descriptionColumn, 33, Unit.PCT);
 
 		// user column
-		// final List<UserProxy> users = userProvider.getList();
-		// Window.alert("userlist size: "+userlist.size());
 		List<String> userNames = new ArrayList<String>();
 		userNames.add("-");
 		for (UserProxy user : userlist) {
@@ -220,24 +360,35 @@ public class AdminCardPage extends AdminPage {
 		userColumn.setFieldUpdater(new FieldUpdater<CardProxy, String>() {
 			@Override
 			public void update(int index, CardProxy object, String value) {
-				for (UserProxy user : userlist) {
-					String name = getUserDisplayName(user);
-					if (name.equals(value)) {
-						request_card = requestFactory.cardRequest();
-						CardProxy card = request_card.edit(object);
-						card.setUser(user);
-						request_card.save(card).with("user").fire(new Receiver<Void>() {
-							@Override
-							public void onSuccess(Void arg0) {
-								dataProvider.refresh();
-							}
-
-						});
-					}
-				}
+				if (!save.isAttached())
+					page.add(save);
+				pendingChanges.add(new UserChange(object, value));
 			}
 		});
 		dataGrid.setColumnWidth(userColumn, 33, Unit.PCT);
+	}
+
+	private void setDeleteColumn(boolean show) {
+		// Checkbox column. This table will uses a checkbox column for
+		// selection.
+		// Alternatively, you can call dataGrid.setSelectionEnabled(true) to
+		// enable mouse selection.
+		if (show) {
+			Column<CardProxy, Boolean> checkColumn = new Column<CardProxy, Boolean>(new CheckboxCell(true, false)) {
+				@Override
+				public Boolean getValue(CardProxy object) {
+					// Get the value from the selection model.
+					return selectionModel.isSelected(object);
+				}
+			};
+			dataGrid.insertColumn(0, checkColumn);// Column(checkColumn,
+													// SafeHtmlUtils.fromSafeConstant("<br/>"));
+			dataGrid.setColumnWidth(checkColumn, 40, Unit.PX);
+		} else {
+			if (dataGrid.getColumnCount() > 4) {
+				dataGrid.removeColumn(0);
+			}
+		}
 	}
 
 	public void showGrid() {
@@ -264,10 +415,92 @@ public class AdminCardPage extends AdminPage {
 		userlist.addAll(users);
 	}
 
-	private String getUserDisplayName(UserProxy user) {
+	private static String getUserDisplayName(UserProxy user) {
 		if (user != null)
 			return user.getId() + " - " + user.getFirstname().substring(0, 15) + " " + user.getLastname().substring(0, 15);
 		else
 			return "";
+	}
+
+	private void deleteCard() {
+		CardRequest card_req = requestFactory.cardRequest();
+		for (final CardProxy card : dataProvider.getList()) {
+			if (selectionModel.isSelected(card)) {
+				card_req.delete(card).to(new Receiver<Void>() {
+					@Override
+					public void onSuccess(Void arg0) {
+						dataProvider.getList().remove(card);
+					}
+
+					@Override
+					public void onFailure(ServerFailure error) {
+						errorFlagDelete = true;
+						errorStringDelete = error.getMessage();
+					}
+				});
+			}
+		}
+		card_req.fire(new Receiver<Void>() {
+			@Override
+			public void onSuccess(Void arg0) {
+				if (errorFlagDelete)
+					deleteStatusLabel.setHTML("<p>Datenbankfehler: " + errorStringDelete + "</p>");
+				else {
+					delete.setText("Löschmodus");
+					setDeleteColumn(false);
+					delete_dbox.hide();
+				}
+			}
+
+			@Override
+			public void onFailure(ServerFailure error) {
+				saveStatusLabel.setHTML("<p>Serverfehler: " + error.getMessage() + "</p>");
+			}
+		});
+	}
+
+	private void initSaveDialog() {
+		// --save
+		final FlowPanel dialogpanel = new FlowPanel();
+		final Button ok = new Button("OK");
+		ok.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				save_dbox.hide();
+			}
+		});
+		dialogpanel.add(saveStatusLabel);
+		dialogpanel.add(ok);
+		dialogpanel.setSize("200px", "80px");
+		save_dbox.setAutoHideOnHistoryEventsEnabled(true);
+		save_dbox.setText("Daten Speichern ...");
+		save_dbox.setWidget(dialogpanel);
+	}
+
+	private void initDeleteDialog() {
+		final FlowPanel delpanel = new FlowPanel();
+		final Button add_ok = new Button("Ja");
+		final Button add_cancel = new Button("Nein");
+		final HTML question = new HTML("<p>Wirklich löschen? </p>");
+		deleteStatusLabel.setText("");
+		add_ok.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				deleteCard();
+			}
+		});
+		add_cancel.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				delete_dbox.hide();
+			}
+		});
+
+		delpanel.add(question);
+		delpanel.add(deleteStatusLabel);
+		delpanel.add(add_ok);
+		delpanel.add(add_cancel);
+
+		// addpanel.setSize("200px", "80px");
+		delete_dbox.setAutoHideOnHistoryEventsEnabled(true);
+		delete_dbox.setText("Benutzer löschen");
+		delete_dbox.setWidget(delpanel);
 	}
 }

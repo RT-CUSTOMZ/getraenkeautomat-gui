@@ -399,11 +399,8 @@ public class AdminUserPage extends AdminPage {
 	}
 
 	private void setDeleteColumn(boolean show) {
-		// Checkbox column. This table will uses a checkbox column for
-		// selection.
-		// Alternatively, you can call dataGrid.setSelectionEnabled(true) to
-		// enable
-		// mouse selection.
+		// Checkbox column. This table will uses a checkbox column for selection.
+		// Alternatively, you can call dataGrid.setSelectionEnabled(true) to enable mouse selection.
 		if (show) {
 			Column<UserProxy, Boolean> checkColumn = new Column<UserProxy, Boolean>(new CheckboxCell(true, false)) {
 				@Override
