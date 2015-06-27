@@ -7,9 +7,9 @@ import de.rtcustomz.getraenkeautomat.server.entities.LineChartData;
 
 @ProxyFor(LineChartData.class)
 public interface LineChartDataProxy extends ValueProxy {
-	public Integer getX();
+	public Integer getTimeSpan();
 	
-	public Integer getY();
+	public Integer getCount();
 	
 	public String getDrink();
 }

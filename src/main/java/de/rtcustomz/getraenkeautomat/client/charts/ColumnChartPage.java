@@ -227,11 +227,11 @@ public class ColumnChartPage extends ChartPage {
 			while( j<history.size() ) {
 				ColumnChartDataProxy data = history.get(j);
 				
-				if( data.getX() != (day+1)) {
+				if( data.getTimeSpan() != (day+1)) {
 					break;
 				}
 					
-				final Integer count = data.getY();
+				final Integer count = data.getCount();
 				final String drink = data.getDrink();
 				
 				if(!drinksInHistory.contains(drink))
@@ -239,7 +239,6 @@ public class ColumnChartPage extends ChartPage {
 				
 				for(int col = 0; col < slots.size(); col++) {
 					if(slots.get(col).getDrink() == drink) {
-						console((day+1) + " : " + drink + " - " + count);
 						dataTable.setValue(day, col+1, count);
 					}
 				}
@@ -251,7 +250,6 @@ public class ColumnChartPage extends ChartPage {
 					final String drink = slots.get(col).getDrink();
 					
 					if( !drinksInHistory.contains(drink) ) {
-						console(drink + " not in history for day " + (day+1));
 						dataTable.setValue(day, col+1, 0);
 					}
 				}

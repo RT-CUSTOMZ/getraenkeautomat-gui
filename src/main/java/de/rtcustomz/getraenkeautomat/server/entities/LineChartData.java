@@ -1,36 +1,36 @@
 package de.rtcustomz.getraenkeautomat.server.entities;
 
 public class LineChartData {
-	Integer x;
-	Integer y;
+	Integer timeSpan;
+	Integer count;
 	String drink;
 	
 	public LineChartData() {
-		this.x = 0;
-		this.y = 0;
+		this.timeSpan = 0;
+		this.count = 0;
 		this.drink = "";
 	}
 	
-	public LineChartData(Integer x, Long y, String drink) {
-		this.x = x;
-		this.y = y.intValue();
+	public LineChartData(Integer timeSpan, Long count, String drink) {
+		this.timeSpan = timeSpan;
+		this.count = count.intValue();
 		this.drink = drink;
 	}
 	
-	public Integer getX() {
-		return x;
+	public Integer getTimeSpan() {
+		return timeSpan;
 	}
 	
-	public void setX(Integer x) {
-		this.x = x;
+	public void setTimeSpan(Integer timeSpan) {
+		this.timeSpan = timeSpan;
 	}
 	
-	public Integer getY() {
-		return y;
+	public Integer getCount() {
+		return count;
 	}
 	
-	public void setY(Integer y) {
-		this.y = y;
+	public void setCount(Integer count) {
+		this.count = count;
 	}
 
 	public String getDrink() {

@@ -1,6 +1,5 @@
 package de.rtcustomz.getraenkeautomat.client;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -49,19 +48,12 @@ public class MainLayout extends Composite {
         chartLoader.loadApi(new Runnable() {
             @Override
             public void run() {
-//            	Iterator<Page> it = pages.values().iterator();
             	for(final Page page : pages.values()) {
             		final ChartPage chartPage = (ChartPage) page;
             		//showPage(chartPage);
             		chartPage.initPage();
             		chartPage.drawChart();
             	}
-//            	while(it.hasNext()) {
-//                	ChartPage page = (ChartPage)it.next();
-//                	showPage(page);
-//                	page.initPage();
-//                	page.drawChart();
-//            	}
             }
         });
 	}

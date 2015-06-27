@@ -24,13 +24,12 @@ import com.googlecode.gwt.charts.client.corechart.PieChartOptions;
 import de.rtcustomz.getraenkeautomat.client.proxies.PieChartDataProxy;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
+import de.rtcustomz.getraenkeautomat.shared.requests.SlotRequest;
 
 public class PieChartPage extends ChartPage {
 	
 	static private PieChartPage _instance = null;
 	private static final String pageName = "Pie Chart";
-	// TODO: read slot_count from slots table
-	private static final int SLOT_COUNT = 6;
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
@@ -41,6 +40,7 @@ public class PieChartPage extends ChartPage {
     
     private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
     private int month = 5;//Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) ); // = 5;
+	private Integer slotsCount;
     
     private boolean diffMode = true;
 	
@@ -49,6 +49,8 @@ public class PieChartPage extends ChartPage {
 		requestFactory.initialize(eventBus);
 
 		getHistory();
+		
+		getSlotsCount();
 		
 //        initPage();
 		
@@ -120,6 +122,21 @@ public class PieChartPage extends ChartPage {
 		});
 	}
 	
+	private void getSlotsCount() {
+		SlotRequest slotrequest = requestFactory.slotRequest();
+    	slotrequest.countSlots().fire(new Receiver<Long>() {
+
+			@Override
+			public void onSuccess(Long response) {
+				slotsCount = response.intValue();
+				if(pieChart != null) {
+					drawChart();
+				}
+			}
+			
+		});
+	}
+	
 	private Widget getPieChart() {
 		if (pieChart == null) {
 	        pieChart = new PieChart();
@@ -131,7 +148,7 @@ public class PieChartPage extends ChartPage {
 	@Override
 	public void drawChart() {
 		// chart can only been drawn if history has been loaded
-		if(historySelectedMonth == null)
+		if(historySelectedMonth == null || historyMonthBefore == null || slotsCount == null)
 			return;
 		
 		// Prepare the data
@@ -165,7 +182,7 @@ public class PieChartPage extends ChartPage {
 		dataTable.addColumn(ColumnType.STRING, "Getränk");
 		dataTable.addColumn(ColumnType.NUMBER, "entnommen");
 		
-		dataTable.addRows(SLOT_COUNT);
+		dataTable.addRows(slotsCount);
 		
 		int i = 0;
 		

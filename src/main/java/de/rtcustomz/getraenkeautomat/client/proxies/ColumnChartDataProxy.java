@@ -7,9 +7,9 @@ import de.rtcustomz.getraenkeautomat.server.entities.ColumnChartData;
 
 @ProxyFor(ColumnChartData.class)
 public interface ColumnChartDataProxy extends ValueProxy {
-	public Integer getX();
+	public Integer getTimeSpan();
 	
-	public Integer getY();
+	public Integer getCount();
 	
 	public String getDrink();
 }
