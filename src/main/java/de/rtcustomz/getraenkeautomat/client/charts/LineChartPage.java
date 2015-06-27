@@ -1,13 +1,14 @@
 package de.rtcustomz.getraenkeautomat.client.charts;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
@@ -18,10 +19,14 @@ import com.googlecode.gwt.charts.client.DataTable;
 import com.googlecode.gwt.charts.client.controls.Dashboard;
 import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilter;
 import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilterOptions;
-import com.googlecode.gwt.charts.client.corechart.ColumnChartOptions;
+import com.googlecode.gwt.charts.client.controls.filter.NumberRangeFilterState;
 import com.googlecode.gwt.charts.client.corechart.LineChartOptions;
+import com.googlecode.gwt.charts.client.event.StateChangeEvent;
+import com.googlecode.gwt.charts.client.event.StateChangeHandler;
+import com.googlecode.gwt.charts.client.options.HAxis;
+import com.googlecode.gwt.charts.client.options.VAxis;
 
-import de.rtcustomz.getraenkeautomat.client.proxies.HistoryEntryProxy;
+import de.rtcustomz.getraenkeautomat.client.proxies.LineChartDataProxy;
 import de.rtcustomz.getraenkeautomat.client.proxies.SlotProxy;
 import de.rtcustomz.getraenkeautomat.shared.ModelRequestFactory;
 import de.rtcustomz.getraenkeautomat.shared.requests.HistoryRequest;
@@ -39,8 +44,13 @@ public class LineChartPage extends ChartPage {
 	private NumberRangeFilter numberRangeFilter;
 	private ChartWrapper<LineChartOptions> lineChart;
 //	private ColumnChart columnChart;
-    private List<HistoryEntryProxy> history;
+    private List<LineChartDataProxy> history;
     private List<SlotProxy> slots;
+    
+
+    private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
+    private int month = 5;//Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) ); // = 5;
+    private int lastDayOfMonth;
 	
 	public LineChartPage()
 	{
@@ -50,13 +60,20 @@ public class LineChartPage extends ChartPage {
 		getHistory();
 //        initPage();
 
+		setLastDayOfMonth();
+		
         // draw new PieChart if user resizes the browser window
         Window.addResizeHandler(this);
         
         initWidget(page);
 	}
 	
-    public static LineChartPage getInstance(){
+    private void setLastDayOfMonth() {
+    	// TODO: use library that can handle Dates much better
+		lastDayOfMonth = new Date(year-1900, month, 0).getDate();
+	}
+
+	public static LineChartPage getInstance(){
         if(null == _instance) {
             _instance = new LineChartPage();
         }
@@ -80,10 +97,10 @@ public class LineChartPage extends ChartPage {
 	
 	private void getHistory() {
 		HistoryRequest historyrequest = requestFactory.historyRequest();
-		historyrequest.findAllHistoryEntries().with("slot").fire(new Receiver<List<HistoryEntryProxy>>() {
+		historyrequest.getLineChartData(month, year).fire(new Receiver<List<LineChartDataProxy>>() {
 
 			@Override
-			public void onSuccess(List<HistoryEntryProxy> response) {
+			public void onSuccess(List<LineChartDataProxy> response) {
 				history = response;
 				if(dashboard != null) {
 					drawChart();
@@ -92,7 +109,7 @@ public class LineChartPage extends ChartPage {
 			
 		});
 	}
-
+	
 	private void getSlots() {
 		SlotRequest slotrequest = requestFactory.slotRequest();
     	slotrequest.findAllSlots().fire(new Receiver<List<SlotProxy>>() {
@@ -144,49 +161,56 @@ public class LineChartPage extends ChartPage {
 		// chart can only been drawn if history and slots have been loaded
 		if(history == null || slots == null)
 			return;
-		HashMap<String, Integer> drinksObtained = new HashMap<>();
-		
-		// TODO: perhaps SQL statement for that?
-		// count how much drinks has been obtained from every slot
-		Iterator<HistoryEntryProxy> it = history.iterator();
-		while(it.hasNext()) {
-			HistoryEntryProxy historyEntry = it.next();
-			
-			String drink = historyEntry.getSlot().getDrink();
-			
-			Integer count = drinksObtained.get(drink);
-            if (count == null)
-                count = 0;
-            count++;
-            
-            drinksObtained.put(drink, count);
-		}
 		
 		// Prepare the data
 		DataTable dataTable = DataTable.create();
-		dataTable.addColumn(ColumnType.STRING, "Getränk");
-		dataTable.addColumn(ColumnType.NUMBER, "entnommen");
 		
-		// add so much entries in PieChart as slots exists
-		dataTable.addRows(slots.size());
-		for (int i = 0; i < slots.size(); i++) {
-			String drink = slots.get(i).getDrink();
-			Integer count = drinksObtained.get(drink);
-			if(count == null)
-				count = 0;
-			dataTable.setValue(i, 0, drink);	// set drink name
-			dataTable.setValue(i, 1, count);	// set count of slots in history
+		dataTable.addColumn(ColumnType.NUMBER, "Monat");
+		for(int i=0; i<slots.size(); i++) {
+			dataTable.addColumn(ColumnType.NUMBER, slots.get(i).getDrink());
 		}
+		
+		dataTable.addRows(lastDayOfMonth);
+		
+		addChartData(dataTable);
 		
 		// Set control options
 		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
-		numberRangeFilterOptions.setFilterColumnLabel("entnommen");
+		numberRangeFilterOptions.setFilterColumnLabel("Monat");
 		numberRangeFilterOptions.setMinValue(1);
-		numberRangeFilterOptions.setMaxValue(drinksObtained.size());
+		numberRangeFilterOptions.setMaxValue(lastDayOfMonth);
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
 		
 		LineChartOptions options = LineChartOptions.create();
-		options.setTitle("Getränke entnommen gesamt");
+		final HAxis hAxis = HAxis.create("Monat");
+		
+		int[] ticks = new int[lastDayOfMonth];
+		for(int day=0; day<lastDayOfMonth; day++) {
+			ticks[day] = day+1;
+		}
+		
+		hAxis.setTicks(ticks);
+		
+		numberRangeFilter.addStateChangeHandler(new StateChangeHandler() {
+			
+			@Override
+			public void onStateChange(StateChangeEvent event) {
+				NumberRangeFilterState state = numberRangeFilter.getState().cast();
+				int low = (int)state.getLowValue();
+				int high = (int)state.getHighValue();
+				
+				int newTicks[] = new int[high-low];
+				for(int i=0;i < high-low; i++) {
+					newTicks[i] = low+i;
+				}
+				
+				hAxis.setTicks(newTicks);
+			}
+		});
+		
+		options.setTitle("Getränke entnommen im Monat " + month + "." + year + ":");
+		options.setHAxis(hAxis);
+		options.setVAxis(VAxis.create("entnommen"));
 		lineChart.setOptions(options);
 		
 //		columnChart.draw(dataTable, options);
@@ -195,11 +219,50 @@ public class LineChartPage extends ChartPage {
 		dashboard.draw(dataTable);
 	}
 
+	private void addChartData(DataTable dataTable) {
+		for(int day=0, j=0; day<lastDayOfMonth; day++) {
+			dataTable.setValue(day, 0, day+1);
+			
+			List<String> drinksInHistory = new ArrayList<>();
+			
+			while( j<history.size() ) {
+				LineChartDataProxy data = history.get(j);
+				
+				if( data.getX() != (day+1)) {
+					break;
+				}
+					
+				final Integer count = data.getY();
+				final String drink = data.getDrink();
+				
+				if(!drinksInHistory.contains(drink))
+					drinksInHistory.add(drink);
+				
+				for(int col = 0; col < slots.size(); col++) {
+					if(slots.get(col).getDrink() == drink) {
+						console((day+1) + " : " + drink + " - " + count);
+						dataTable.setValue(day, col+1, count);
+					}
+				}
+				j++;
+			}
+			
+			if(drinksInHistory.size() != slots.size()) {
+				for(int col = 0; col < slots.size(); col++) {
+					final String drink = slots.get(col).getDrink();
+					
+					if( !drinksInHistory.contains(drink) ) {
+						console(drink + " not in history for day " + (day+1));
+						dataTable.setValue(day, col+1, 0);
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	public void onResize(ResizeEvent event) {
-		if(dashboard != null) {
-			dashboard.redraw();
-		}
+		redrawChart();
 	}
 
 	@Override
@@ -207,6 +270,7 @@ public class LineChartPage extends ChartPage {
 		if(history == null || slots == null || dashboard == null)
 			return;
 		
+		// remove possible errors
 		dashboard.getElement().setInnerHTML("");
 		dashboard.redraw();
 	}

@@ -39,6 +39,12 @@ public class HistoryEntry {
 	@Transient
 	PieChartData pieChartData;
 	
+	@Transient
+	LineChartData lineChartData;
+	
+	@Transient
+	ColumnChartData columnChartData;
+	
 	public HistoryEntry() {}
 	
 	public HistoryEntry(Card card, Slot slot) {

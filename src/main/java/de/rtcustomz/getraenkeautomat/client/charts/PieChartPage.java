@@ -29,6 +29,7 @@ public class PieChartPage extends ChartPage {
 	
 	static private PieChartPage _instance = null;
 	private static final String pageName = "Pie Chart";
+	// TODO: read slot_count from slots table
 	private static final int SLOT_COUNT = 6;
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
@@ -181,16 +182,14 @@ public class PieChartPage extends ChartPage {
 
 	@Override
 	public void onResize(ResizeEvent event) {
-		if(pieChart != null) {
-			pieChart.redraw();
-		}
+		redrawChart();
 	}
 	
 	@Override
 	public void redrawChart() {
 		if(historySelectedMonth == null || pieChart == null)
 			return;
-		
+
 		pieChart.redraw();
 	}
 
