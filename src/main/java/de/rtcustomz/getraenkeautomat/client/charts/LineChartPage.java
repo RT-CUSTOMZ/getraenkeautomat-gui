@@ -3,6 +3,7 @@ package de.rtcustomz.getraenkeautomat.client.charts;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -36,6 +37,7 @@ public class LineChartPage extends ChartPage {
 	
 	static private LineChartPage _instance = null;
 	private static final String pageName = "Line Chart";
+	private static enum Mode { MONTH, DAY };
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
@@ -43,34 +45,48 @@ public class LineChartPage extends ChartPage {
 	private Dashboard dashboard;
 	private NumberRangeFilter numberRangeFilter;
 	private ChartWrapper<LineChartOptions> lineChart;
-//	private ColumnChart columnChart;
     private List<LineChartDataProxy> history;
     private List<SlotProxy> slots;
     
 
     private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
-    private int month = 5;//Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) ); // = 5;
-    private int lastDayOfMonth;
+    private int month = Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) );
+    private int day = Integer.parseInt( DateTimeFormat.getFormat("d").format(new Date()) );
+    private int toValue;
+    private int fromValue;
+    private Mode currentMode = Mode.MONTH;
+    
+    // TODO: set days and months as x-axis labels of chart
+//  private String[] days = {"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"};
+//  private String[] months = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
 	
 	public LineChartPage()
 	{
 		requestFactory.initialize(eventBus);
-		
-		getSlots();
-		getHistory();
-//        initPage();
-
-		setLastDayOfMonth();
 		
         // draw new PieChart if user resizes the browser window
         Window.addResizeHandler(this);
         
         initWidget(page);
 	}
-	
-    private void setLastDayOfMonth() {
-    	// TODO: use library that can handle Dates much better
-		lastDayOfMonth = new Date(year-1900, month, 0).getDate();
+
+	// TODO: use library that can handle Dates much better
+    private int getLastDayOfMonth() {
+		return new Date(year-1900, month, 0).getDate();
+	}
+    
+    private void setFirstAndLastEntry() {
+    	switch(currentMode) {
+    		case MONTH:
+    			fromValue = 1;
+    			toValue = getLastDayOfMonth();
+    			break;
+    			
+    		case DAY:
+    			fromValue = 0;
+    			toValue = 23;
+    			break;
+    	}
 	}
 
 	public static LineChartPage getInstance(){
@@ -90,24 +106,34 @@ public class LineChartPage extends ChartPage {
 		page.add( getLineChart() );
 		page.add( getDashboard() );
 		page.add( getNumberRangeFilter() );
-//		page.add( getColumnChart() );
-		
-//		drawChart();
 	}
 	
 	private void getHistory() {
 		HistoryRequest historyrequest = requestFactory.historyRequest();
-		historyrequest.getLineChartData(month, year).fire(new Receiver<List<LineChartDataProxy>>() {
+		Receiver<List<LineChartDataProxy>> historyReceiver = new Receiver<List<LineChartDataProxy>>() {
 
 			@Override
 			public void onSuccess(List<LineChartDataProxy> response) {
 				history = response;
+				
+				setFirstAndLastEntry();
+				
 				if(dashboard != null) {
 					drawChart();
 				}
 			}
 			
-		});
+		};
+		
+		switch(currentMode) {
+			case MONTH:
+				historyrequest.getLineChartData(month, year).fire(historyReceiver);
+				break;
+				
+			case DAY:
+				historyrequest.getLineChartData(day, month, year).fire(historyReceiver);
+				break;
+		}
 	}
 	
 	private void getSlots() {
@@ -125,18 +151,10 @@ public class LineChartPage extends ChartPage {
 		});
 	}
 	
-//	private Widget getColumnChart() {
-//		if (columnChart == null) {
-//			columnChart = new ColumnChart();
-//	        columnChart.getElement().setId("chart");
-//		}
-//		return columnChart;
-//	}
-	
 	private Widget getDashboard() {
 		if (dashboard == null) {
 			dashboard = new Dashboard();
-			dashboard.getElement().setId("dashboard");
+			dashboard.addStyleName("dashboard");
 		}
 		return dashboard;
 	}
@@ -145,6 +163,7 @@ public class LineChartPage extends ChartPage {
 		if (lineChart == null) {
 			lineChart = new ChartWrapper<LineChartOptions>();
 			lineChart.setChartType(ChartType.LINE);
+			lineChart.setStyleName("chart");
 		}
 		return lineChart;
 	}
@@ -162,31 +181,47 @@ public class LineChartPage extends ChartPage {
 		if(history == null || slots == null)
 			return;
 		
+		int rowCount = toValue-fromValue + 1;
+		String xAxisLabel, title;
+		
 		// Prepare the data
 		DataTable dataTable = DataTable.create();
 		
-		dataTable.addColumn(ColumnType.NUMBER, "Monat");
+		switch(currentMode) {
+			case DAY:
+				xAxisLabel = "Uhrzeit";
+				title = "Getränke entnommen am Tag " + day + "." + month + "." + year + ":";
+				break;
+			
+			// default of mode is day
+			case MONTH:
+			default:
+				xAxisLabel = "Tag";
+				title = "Getränke entnommen im Monat " + month + "." + year + ":";
+		}
+		
+		dataTable.addColumn(ColumnType.NUMBER, xAxisLabel);
 		for(int i=0; i<slots.size(); i++) {
 			dataTable.addColumn(ColumnType.NUMBER, slots.get(i).getDrink());
 		}
 		
-		dataTable.addRows(lastDayOfMonth);
+		dataTable.addRows(rowCount);
 		
 		addChartData(dataTable);
 		
 		// Set control options
 		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
-		numberRangeFilterOptions.setFilterColumnLabel("Monat");
-		numberRangeFilterOptions.setMinValue(1);
-		numberRangeFilterOptions.setMaxValue(lastDayOfMonth);
+		numberRangeFilterOptions.setFilterColumnLabel(xAxisLabel);
+		numberRangeFilterOptions.setMinValue(fromValue);
+		numberRangeFilterOptions.setMaxValue(toValue);
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
 		
 		LineChartOptions options = LineChartOptions.create();
-		final HAxis hAxis = HAxis.create("Monat");
+		final HAxis hAxis = HAxis.create(xAxisLabel);
 		
-		int[] ticks = new int[lastDayOfMonth];
-		for(int day=0; day<lastDayOfMonth; day++) {
-			ticks[day] = day+1;
+		int[] ticks = new int[rowCount];
+		for(int i=0; i<rowCount; i++) {
+			ticks[i] = fromValue + i;
 		}
 		
 		hAxis.setTicks(ticks);
@@ -200,7 +235,7 @@ public class LineChartPage extends ChartPage {
 				int high = (int)state.getHighValue();
 				
 				int newTicks[] = new int[high-low];
-				for(int i=0;i < high-low; i++) {
+				for(int i=0;i <= high-low; i++) {
 					newTicks[i] = low+i;
 				}
 				
@@ -208,27 +243,30 @@ public class LineChartPage extends ChartPage {
 			}
 		});
 		
-		options.setTitle("Getränke entnommen im Monat " + month + "." + year + ":");
+		options.setTitle(title);
 		options.setHAxis(hAxis);
 		options.setVAxis(VAxis.create("entnommen"));
 		lineChart.setOptions(options);
-		
-//		columnChart.draw(dataTable, options);
 		
 		dashboard.bind(numberRangeFilter, lineChart);
 		dashboard.draw(dataTable);
 	}
 
 	private void addChartData(DataTable dataTable) {
-		for(int day=0, j=0; day<lastDayOfMonth; day++) {
-			dataTable.setValue(day, 0, day+1);
+		int rowCount = toValue-fromValue + 1;
+		
+		for(int i=0, j=0; i<rowCount; i++) {
+			
+			int time = fromValue + i;
+			
+			dataTable.setValue(i, 0, time);
 			
 			List<String> drinksInHistory = new ArrayList<>();
 			
 			while( j<history.size() ) {
 				LineChartDataProxy data = history.get(j);
 				
-				if( data.getTimeSpan() != (day+1)) {
+				if( data.getTimeSpan() != time) {
 					break;
 				}
 					
@@ -240,7 +278,7 @@ public class LineChartPage extends ChartPage {
 				
 				for(int col = 0; col < slots.size(); col++) {
 					if(slots.get(col).getDrink() == drink) {
-						dataTable.setValue(day, col+1, count);
+						dataTable.setValue(i, col+1, count);
 					}
 				}
 				j++;
@@ -251,7 +289,7 @@ public class LineChartPage extends ChartPage {
 					final String drink = slots.get(col).getDrink();
 					
 					if( !drinksInHistory.contains(drink) ) {
-						dataTable.setValue(day, col+1, 0);
+						dataTable.setValue(i, col+1, 0);
 					}
 				}
 			}
@@ -271,6 +309,42 @@ public class LineChartPage extends ChartPage {
 		// remove possible errors
 		dashboard.getElement().setInnerHTML("");
 		dashboard.redraw();
+	}
+
+	@Override
+	public void setMode(String mode) {
+		if(mode.equals("month")) {
+			currentMode = Mode.MONTH;
+		} else if(mode.equals("day")) {
+			currentMode = Mode.DAY;
+		}
+	}
+
+	@Override
+	public void setFilter(Map<String, String> filter) {
+		if(filter.containsKey("year")) {
+			int year = Integer.parseInt( filter.get("year") );
+			if(year >= 2000 && year <= 2100)
+				this.year = year;
+		}
+		
+		if(filter.containsKey("month")) {
+			int month = Integer.parseInt( filter.get("month") );
+			if(month >=1 && month <= 12)
+				this.month = month;
+		}
+		
+		if(filter.containsKey("day")) {
+			int day = Integer.parseInt( filter.get("day") );
+			if(day >=0 && day <= 31)
+				this.day = day;
+		}
+	}
+
+	@Override
+	public void initData() {
+		getSlots();
+		getHistory();
 	}
 
 }

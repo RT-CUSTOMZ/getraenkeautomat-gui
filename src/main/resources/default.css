@@ -38,7 +38,8 @@ a:hover {
 }
 
 #wrapper {
-	max-width: 980px;
+	max-width: 70%;
+	min-width: 800px;
 	margin:0px auto;
 }
 
@@ -100,13 +101,13 @@ h1.description {
 	position: relative;
 }
 
-#dashboard {
+.dashboard {
 	height: 0px;
 	visible: none;
 }
 
-#chart {
-	height: 300px;
+.chart {
+	height: 400px;
 }
 
 #footer {

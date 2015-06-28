@@ -1,5 +1,6 @@
 package de.rtcustomz.getraenkeautomat.client;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 
@@ -30,11 +31,10 @@ public class MainLayout extends Composite {
 		final Entry<String, Page> firstPage = pages.entrySet().iterator().next();
 		
 		if(firstPage.getValue() instanceof ChartPage) {
-			initCharts();
+			initCharts(firstPage.getKey());
+		} else {
+			initHistory(firstPage.getKey());
 		}
-		
-		initHistory(firstPage.getKey());
-		// showPage(startPage);
 		
 		initWidget(wrapper);
 	}
@@ -43,17 +43,15 @@ public class MainLayout extends Composite {
 	    console.log( message );
 	}-*/;
 	
-	private void initCharts() {
+	private void initCharts(final String startPage) {
 		ChartLoader chartLoader = new ChartLoader(ChartPackage.CORECHART, ChartPackage.CONTROLS);
         chartLoader.loadApi(new Runnable() {
             @Override
             public void run() {
             	for(final Page page : pages.values()) {
-            		final ChartPage chartPage = (ChartPage) page;
-            		//showPage(chartPage);
-            		chartPage.initPage();
-            		chartPage.drawChart();
+            		page.initPage();
             	}
+            	initHistory(startPage);
             }
         });
 	}
@@ -61,21 +59,44 @@ public class MainLayout extends Composite {
 	private void initHistory(String firstPage) {
 		String initToken = History.getToken();
 	    if (initToken.length() == 0) {
-	      History.newItem(firstPage);
+	      History.newItem("page="+firstPage);
 	    }
-		
+
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
 			
             @Override
             public void onValueChange(ValueChangeEvent<String> event) {
-            	final String pageName = event.getValue();
+            	HashMap<String, String> tokens = new HashMap<>();
+            	
+            	// extract tokens from history
+            	for(String token : event.getValue().split("&")) {
+            		final String[] keyvalue = token.split("=");
+
+            		tokens.put(keyvalue[0], keyvalue[1]);
+            	}
+            	
+            	final String pageName = tokens.remove("page");
             	if(pages.containsKey(pageName)) {
-            		Page page = pages.get(pageName);
-                	showPage(page);
-                	if(page instanceof ChartPage) {
-                		((ChartPage)page).redrawChart();
-                		//((ChartPage)page).onResize(null);
+            		Page startPage = pages.get(pageName);
+            		
+            		if(startPage instanceof ChartPage) {
+            			ChartPage chartPage = (ChartPage)startPage;
+
+            			// set mode of chart if given by history
+            			if(tokens.containsKey("mode")) {
+            				chartPage.setMode(tokens.remove("mode"));
+            			}
+            			
+            			// if history contains filter
+            			if(!tokens.isEmpty()) {
+            				chartPage.setFilter(tokens);
+            			}
+            			
+            			chartPage.initData();
+                		chartPage.drawChart();
                 	}
+            		
+                	showPage(startPage);
             	}
             	else showPage(ErrorPage.getInstance());
             }

@@ -3,6 +3,7 @@ package de.rtcustomz.getraenkeautomat.client.charts;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
@@ -36,6 +37,7 @@ public class ColumnChartPage extends ChartPage {
 	
 	static private ColumnChartPage _instance = null;
 	private static final String pageName = "Column Chart";
+	private static enum Mode { OVERALL, YEAR, WEEK };
 
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
@@ -43,23 +45,23 @@ public class ColumnChartPage extends ChartPage {
 	private Dashboard dashboard;
 	private NumberRangeFilter numberRangeFilter;
 	private ChartWrapper<ColumnChartOptions> columnChart;
-//	private ColumnChart columnChart;
     private List<ColumnChartDataProxy> history;
     private List<SlotProxy> slots;
 
     private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
-    private int month = 5;//Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) ); // = 5;
-    private int lastDayOfMonth;
+    private int month = Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) );
+    private int week = setDefaultWeek();
+    private int toValue;
+    private int fromValue;
+    private Mode currentMode = Mode.YEAR;
+    
+    // TODO: set days and months as x-axis labels of chart
+//    private String[] days = {"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"};
+//    private String[] months = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
 	
 	public ColumnChartPage()
 	{
 		requestFactory.initialize(eventBus);
-		
-		getSlots();
-		getHistory();
-//        initPage();
-		
-		setLastDayOfMonth();
 
         // draw new PieChart if user resizes the browser window
         Window.addResizeHandler(this);
@@ -67,9 +69,32 @@ public class ColumnChartPage extends ChartPage {
         initWidget(page);
 	}
 	
-    private void setLastDayOfMonth() {
-    	// TODO: use library that can handle Dates much better
-		lastDayOfMonth = new Date(year-1900, month, 0).getDate();
+	// TODO: use library that can handle Dates much better
+    private int setDefaultWeek() {
+    	Date date = new Date();
+    	Date yearStart = new Date(date.getYear(), 0, 0);
+
+    	int week = (int) ( (date.getTime() - yearStart.getTime()) / (7 * 24 * 60 * 60 * 1000) );
+		return week;
+	}
+
+	private void setFirstAndLastEntry() {
+    	switch(currentMode) {
+    		case OVERALL:
+    			fromValue = history.get(0).getTimeSpan();
+    			toValue = history.get(history.size()-1).getTimeSpan();
+    			break;
+    			
+    		case YEAR:
+    			fromValue = 1;
+    			toValue = 12;
+    			break;
+    			
+    		case WEEK:
+    			fromValue = 1;
+    			toValue = 7;
+    			break;
+    	}
 	}
 	
     public static ColumnChartPage getInstance(){
@@ -89,24 +114,38 @@ public class ColumnChartPage extends ChartPage {
 		page.add( getColumnChart() );
 		page.add( getDashboard() );
 		page.add( getNumberRangeFilter() );
-//		page.add( getColumnChart() );
-		
-//		drawChart();
 	}
 	
 	private void getHistory() {
 		HistoryRequest historyrequest = requestFactory.historyRequest();
-		historyrequest.getColumnChartData(year).fire(new Receiver<List<ColumnChartDataProxy>>() {
+		Receiver<List<ColumnChartDataProxy>> historyReceiver = new Receiver<List<ColumnChartDataProxy>>() {
 
 			@Override
 			public void onSuccess(List<ColumnChartDataProxy> response) {
 				history = response;
+
+				setFirstAndLastEntry();
+				
 				if(dashboard != null) {
 					drawChart();
 				}
 			}
 			
-		});
+		};
+		
+		switch(currentMode) {
+			case OVERALL:
+				historyrequest.getColumnChartData().fire(historyReceiver);
+				break;
+				
+			case YEAR:
+				historyrequest.getColumnChartData(year).fire(historyReceiver);
+				break;
+				
+			case WEEK:
+				historyrequest.getColumnChartData(week, month, year).fire(historyReceiver);
+				break;
+		}
 	}
 
 	private void getSlots() {
@@ -124,18 +163,10 @@ public class ColumnChartPage extends ChartPage {
 		});
 	}
 	
-//	private Widget getColumnChart() {
-//		if (columnChart == null) {
-//			columnChart = new ColumnChart();
-//	        columnChart.getElement().setId("chart");
-//		}
-//		return columnChart;
-//	}
-	
 	private Widget getDashboard() {
 		if (dashboard == null) {
 			dashboard = new Dashboard();
-			dashboard.getElement().setId("dashboard");
+			dashboard.addStyleName("dashboard");
 		}
 		return dashboard;
 	}
@@ -144,6 +175,7 @@ public class ColumnChartPage extends ChartPage {
 		if (columnChart == null) {
 			columnChart = new ChartWrapper<ColumnChartOptions>();
 			columnChart.setChartType(ChartType.COLUMN);
+			columnChart.setStyleName("chart");
 		}
 		return columnChart;
 	}
@@ -161,31 +193,52 @@ public class ColumnChartPage extends ChartPage {
 		if(history == null || slots == null)
 			return;
 		
+		int rowCount = toValue-fromValue + 1;
+		String xAxisLabel, title;
+		
 		// Prepare the data
 		DataTable dataTable = DataTable.create();
 		
-		dataTable.addColumn(ColumnType.NUMBER, "Monat");
+		switch(currentMode) {
+			case OVERALL:
+				xAxisLabel = "Jahr";
+				title = "Getränke entnommen gesamt:";
+				break;
+				
+			case WEEK:
+				xAxisLabel = "Tag";
+				title = "Getränke entnommen in KW " + week + " (" + month + ". Monat) des Jahres " + year + ":";
+				break;
+			
+			// default of mode is year
+			case YEAR:
+			default:
+				xAxisLabel = "Monat";
+				title = "Getränke entnommen im Jahr " + year + ":";
+		}
+		
+		dataTable.addColumn(ColumnType.NUMBER, xAxisLabel);
 		for(int i=0; i<slots.size(); i++) {
 			dataTable.addColumn(ColumnType.NUMBER, slots.get(i).getDrink());
 		}
 		
-		dataTable.addRows(lastDayOfMonth);
+		dataTable.addRows(rowCount);
 		
 		addChartData(dataTable);
 		
 		// Set control options
 		NumberRangeFilterOptions numberRangeFilterOptions = NumberRangeFilterOptions.create();
-		numberRangeFilterOptions.setFilterColumnLabel("Monat");
-		numberRangeFilterOptions.setMinValue(1);
-		numberRangeFilterOptions.setMaxValue(lastDayOfMonth);
+		numberRangeFilterOptions.setFilterColumnLabel(xAxisLabel);
+		numberRangeFilterOptions.setMinValue(fromValue);
+		numberRangeFilterOptions.setMaxValue(toValue);
 		numberRangeFilter.setOptions(numberRangeFilterOptions);
 		
 		ColumnChartOptions options = ColumnChartOptions.create();
-		final HAxis hAxis = HAxis.create("Monat");
+		final HAxis hAxis = HAxis.create(xAxisLabel);
 		
-		int[] ticks = new int[lastDayOfMonth];
-		for(int day=0; day<lastDayOfMonth; day++) {
-			ticks[day] = day+1;
+		int[] ticks = new int[rowCount];
+		for(int i=0; i<rowCount; i++) {
+			ticks[i] = fromValue + i;
 		}
 		
 		hAxis.setTicks(ticks);
@@ -199,7 +252,7 @@ public class ColumnChartPage extends ChartPage {
 				int high = (int)state.getHighValue();
 				
 				int newTicks[] = new int[high-low];
-				for(int i=0;i < high-low; i++) {
+				for(int i=0;i <= high-low; i++) {
 					newTicks[i] = low+i;
 				}
 				
@@ -207,27 +260,30 @@ public class ColumnChartPage extends ChartPage {
 			}
 		});
 		
-		options.setTitle("Getränke entnommen im Monat " + month + "." + year + ":");
+		options.setTitle(title);
 		options.setHAxis(hAxis);
 		options.setVAxis(VAxis.create("entnommen"));
 		columnChart.setOptions(options);
-		
-//		columnChart.draw(dataTable, options);
 		
 		dashboard.bind(numberRangeFilter, columnChart);
 		dashboard.draw(dataTable);
 	}
 	
 	private void addChartData(DataTable dataTable) {
-		for(int day=0, j=0; day<lastDayOfMonth; day++) {
-			dataTable.setValue(day, 0, day+1);
+		int rowCount = toValue-fromValue + 1;
+		
+		for(int i=0, j=0; i<rowCount; i++) {
+			
+			int time = fromValue + i;
+			
+			dataTable.setValue(i, 0, time);
 			
 			List<String> drinksInHistory = new ArrayList<>();
 			
 			while( j<history.size() ) {
 				ColumnChartDataProxy data = history.get(j);
 				
-				if( data.getTimeSpan() != (day+1)) {
+				if( data.getTimeSpan() != time) {
 					break;
 				}
 					
@@ -239,7 +295,7 @@ public class ColumnChartPage extends ChartPage {
 				
 				for(int col = 0; col < slots.size(); col++) {
 					if(slots.get(col).getDrink() == drink) {
-						dataTable.setValue(day, col+1, count);
+						dataTable.setValue(i, col+1, count);
 					}
 				}
 				j++;
@@ -250,7 +306,7 @@ public class ColumnChartPage extends ChartPage {
 					final String drink = slots.get(col).getDrink();
 					
 					if( !drinksInHistory.contains(drink) ) {
-						dataTable.setValue(day, col+1, 0);
+						dataTable.setValue(i, col+1, 0);
 					}
 				}
 			}
@@ -270,6 +326,48 @@ public class ColumnChartPage extends ChartPage {
 		// remove possible errors
 		dashboard.getElement().setInnerHTML("");
 		dashboard.redraw();
+	}
+
+	@Override
+	public void setMode(String mode) {
+		if(mode.equals("overall")) {
+			currentMode = Mode.OVERALL;
+		} else if(mode.equals("year")) {
+			currentMode = Mode.YEAR;
+		} else if(mode.equals("week")) {
+			currentMode = Mode.WEEK;
+		}
+	}
+
+	@Override
+	public void setFilter(Map<String, String> filter) {
+		try {
+			if(filter.containsKey("year")) {
+				int year = Integer.parseInt( filter.get("year") );
+				if(year >= 2000 && year <= 2100)
+					this.year = year;
+			}
+			
+			if(filter.containsKey("month")) {
+				int month = Integer.parseInt( filter.get("month") );
+				if(month >=1 && month <= 12)
+					this.month = month;
+			}
+			
+			if(filter.containsKey("week")) {
+				int week = Integer.parseInt( filter.get("week") );
+				if(week >=1 && week <= 53)
+					this.week = week;
+			}
+		} catch(NumberFormatException e) {
+			// TODO: show user that param is wrong
+		}
+	}
+
+	@Override
+	public void initData() {
+		getSlots();
+		getHistory();
 	}
 
 }

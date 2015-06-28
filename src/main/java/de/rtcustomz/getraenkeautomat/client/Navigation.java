@@ -24,7 +24,7 @@ public class Navigation extends Composite {
 			anchor.addClickHandler(new ClickHandler() {
 	            @Override
 	            public void onClick(ClickEvent event) {
-	                History.newItem(page, true);
+	                History.newItem("page="+page, true);
 	            }
 	        });
 			nextpage.add(anchor);
