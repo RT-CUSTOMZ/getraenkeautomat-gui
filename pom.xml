@@ -115,9 +115,10 @@
 				<!-- Plugin configuration. There are many available options, see gwt-maven-plugin 
 					documentation at codehaus.org -->
 				<configuration>
-					<runTarget>GetraenkeautomatGUI.html</runTarget>
+					<runTarget>AdminGUI.html</runTarget>
 					<modules>
 						<module>de.rtcustomz.getraenkeautomat.GetraenkeautomatGUI</module>
+						<module>de.rtcustomz.getraenkeautomat.AdminGUI</module>
 					</modules>
 				</configuration>
 			</plugin>
