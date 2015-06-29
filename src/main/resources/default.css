@@ -147,3 +147,7 @@ h1.description {
     vertical-align: bottom;
     width: 60%;
 }
+
+.gwt-Button {
+	margin: 5px;
+}

@@ -497,8 +497,8 @@ public class AdminCardPage extends AdminPage {
 		delpanel.add(deleteStatusLabel);
 		delpanel.add(add_ok);
 		delpanel.add(add_cancel);
+		delpanel.setSize("200px", "100px");
 
-		// addpanel.setSize("200px", "80px");
 		delete_dbox.setAutoHideOnHistoryEventsEnabled(true);
 		delete_dbox.setText("Benutzer löschen");
 		delete_dbox.setWidget(delpanel);

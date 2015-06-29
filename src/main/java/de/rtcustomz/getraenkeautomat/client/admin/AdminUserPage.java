@@ -399,8 +399,10 @@ public class AdminUserPage extends AdminPage {
 	}
 
 	private void setDeleteColumn(boolean show) {
-		// Checkbox column. This table will uses a checkbox column for selection.
-		// Alternatively, you can call dataGrid.setSelectionEnabled(true) to enable mouse selection.
+		// Checkbox column. This table will uses a checkbox column for
+		// selection.
+		// Alternatively, you can call dataGrid.setSelectionEnabled(true) to
+		// enable mouse selection.
 		if (show) {
 			Column<UserProxy, Boolean> checkColumn = new Column<UserProxy, Boolean>(new CheckboxCell(true, false)) {
 				@Override
@@ -569,8 +571,8 @@ public class AdminUserPage extends AdminPage {
 		delpanel.add(deleteStatusLabel);
 		delpanel.add(add_ok);
 		delpanel.add(add_cancel);
+		delpanel.setSize("200px", "100px");
 
-		// addpanel.setSize("200px", "80px");
 		delete_dbox.setAutoHideOnHistoryEventsEnabled(true);
 		delete_dbox.setText("Benutzer löschen");
 		delete_dbox.setWidget(delpanel);
