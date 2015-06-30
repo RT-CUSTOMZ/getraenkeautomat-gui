@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
@@ -53,18 +56,105 @@ public class ColumnChartPage extends ChartPage {
 
     private int year;
     private int month;
-    private int week = getWeek( new Date() );
+    private int week = calendarWeekIso( new Date() );//getWeek( new Date() );
     private int toValue;
     private int fromValue;
-    private Mode currentMode = Mode.YEAR;
+    private Mode currentMode = Mode.OVERALL;
     
     // TODO: set days and months as x-axis labels of chart
 //    private String[] days = {"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"};
-//    private String[] months = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
+    private String[] months = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
+	private int firstWeekInMonth = 0;
 	
 	public ColumnChartPage()
 	{
 		requestFactory.initialize(eventBus);
+		
+		FlowPanel selectBoxes = new FlowPanel();
+		selectBoxes.setStyleName("selectboxes");
+		
+		modeSelect.addItem("Übersicht alle Jahre", "overall");
+		modeSelect.addItem("Jahresansicht", "year");
+		modeSelect.addItem("Wochenansicht", "week");
+		
+		for(int i=MINYEAR; i<=MAXYEAR; i++) {
+			final String year = String.valueOf(i);
+			yearSelect.addItem(year, year);
+		}
+		
+		for(int i=MINMONTH; i<=MAXMONTH; i++) {
+			final String month = String.valueOf(i);
+			monthSelect.addItem(months[i-1], month);
+		}
+		
+		modeSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String mode = modeSelect.getSelectedValue();
+				
+				changeHistory("mode", mode);
+				
+				setMode(mode);
+				
+				initData();
+				drawChart();
+			}
+		});
+		
+		yearSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String year = yearSelect.getSelectedValue();
+				
+				changeHistory("year", year);
+				
+				setYear(year);
+				
+				initData();
+				drawChart();
+			}
+		});
+		
+		monthSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String month = monthSelect.getSelectedValue();
+				
+				changeHistory("month", month);
+				
+				setMonth(month);
+				
+				initData();
+				drawChart();
+			}
+		});
+
+		weekSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String week = weekSelect.getSelectedValue();
+				
+				changeHistory("week", week);
+				
+				setWeek(week);
+				
+				initData();
+				drawChart();
+			}
+		});
+		weekSelect.setVisible(false);
+		
+		
+		selectBoxes.add(modeSelect);
+		selectBoxes.add(yearSelect);
+		selectBoxes.add(monthSelect);
+		selectBoxes.add(weekSelect);
+		
+		page.add(selectBoxes);
 
         // draw new PieChart if user resizes the browser window
         Window.addResizeHandler(this);
@@ -73,12 +163,34 @@ public class ColumnChartPage extends ChartPage {
 	}
 	
 	// TODO: use library that can handle Dates much better
-    private int getWeek(Date date) {
-    	Date yearStart = new Date(date.getYear(), 0, 0);
-
-    	int week = (int) ( (date.getTime() - yearStart.getTime()) / (7 * 24 * 60 * 60 * 1000) );
-		return week;
+	private int calendarWeekIso(Date date) {
+		Date thisThursday = new Date(date.getYear(), date.getMonth(), date.getDate() - weekday(date) + 4);
+		Date firstOfJan = new Date(thisThursday.getYear(), 0, 1);
+		Date firstThursdayOfYear = new Date(thisThursday.getYear(), 0, 1);
+		
+		while (weekday(firstThursdayOfYear) != 4) {
+			firstThursdayOfYear.setDate(firstThursdayOfYear.getDate() + 1);
+		}
+		
+		Date firstMondayOfYear = new Date(firstThursdayOfYear.getYear(), 0, firstThursdayOfYear.getDate() - 3);
+		int cw = (int) ( (thisThursday.getTime() - firstMondayOfYear.getTime() ) / (7 * 24 * 60 * 60 * 1000) ) + 1;
+		return cw;
 	}
+	
+	private int weekday(Date date) {
+		int weekday = date.getDay();
+		if (weekday == 0) {
+			weekday = 7;
+		}
+		return weekday;
+	}
+	
+//    private int getWeek(Date date) {
+//    	Date yearStart = new Date(date.getYear(), 0, 0);
+//
+//    	int week = (int) ( (date.getTime() - yearStart.getTime()) / (7 * 24 * 60 * 60 * 1000) );
+//		return week;
+//	}
 
 	private void setFirstAndLastEntry() {
     	switch(currentMode) {
@@ -202,9 +314,9 @@ public class ColumnChartPage extends ChartPage {
 		DataTable dataTable = DataTable.create();
 		
 		switch(currentMode) {
-			case OVERALL:
-				xAxisLabel = "Jahr";
-				title = "Getränke entnommen gesamt:";
+			case YEAR:
+				xAxisLabel = "Monat";
+				title = "Getränke entnommen im Jahr " + year + ":";
 				break;
 				
 			case WEEK:
@@ -213,10 +325,10 @@ public class ColumnChartPage extends ChartPage {
 				break;
 			
 			// default of mode is year
-			case YEAR:
+			case OVERALL:
 			default:
-				xAxisLabel = "Monat";
-				title = "Getränke entnommen im Jahr " + year + ":";
+				xAxisLabel = "Jahr";
+				title = "Getränke entnommen gesamt:";
 		}
 		
 		dataTable.addColumn(ColumnType.NUMBER, xAxisLabel);
@@ -333,50 +445,102 @@ public class ColumnChartPage extends ChartPage {
 	@Override
 	public void setMode(String mode) {
 		if(mode == null) {
-			currentMode = Mode.YEAR;
-			return;
+			mode = new String("overall");
 		}
 			
 		if(mode.equals("overall")) {
 			currentMode = Mode.OVERALL;
+			
+			weekSelect.setVisible(false);
+			monthSelect.setVisible(false);
+			yearSelect.setVisible(false);
 		} else if(mode.equals("year")) {
 			currentMode = Mode.YEAR;
+
+			weekSelect.setVisible(false);
+			monthSelect.setVisible(false);
+			yearSelect.setVisible(true);
 		} else if(mode.equals("week")) {
 			currentMode = Mode.WEEK;
+
+			weekSelect.setVisible(true);
+			monthSelect.setVisible(true);
+			yearSelect.setVisible(true);
 		}
+		modeSelect.setSelectedIndex(currentMode.ordinal());
+	}
+	
+	private void updateWeekSelect() {
+		final int from = firstWeekInMonth;
+		final int to = calendarWeekIso(new Date(year-1900, month, 0)); // getWeek
+		
+		// empty data
+		weekSelect.getElement().setInnerHTML("");
+		
+		for(int i=0; i<=to-from; i++) {
+			final String week = String.valueOf(from+i);
+			weekSelect.insertItem(week, week, i);
+		}
+		weekSelect.setSelectedIndex(0);
+	}
+
+	public void setYear(String year) {
+		if(year != null) {
+			try {
+				int y = Integer.parseInt( year );
+				this.year = y;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format( new Date()) );
+		}
+		firstWeekInMonth = calendarWeekIso(new Date(this.year-1900, this.month-1, 1)); // getWeek
+		setWeek( String.valueOf(firstWeekInMonth) );
+		
+		yearSelect.setSelectedIndex(this.year-MINYEAR);
+	}
+	
+	public void setMonth(String month) {
+		if(month != null) {
+			try {
+				int m = Integer.parseInt( month );
+				if(m >=1 && m <= 12)
+					this.month = m;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.month = Integer.parseInt( DateTimeFormat.getFormat("MM").format( new Date()) );
+		}
+		firstWeekInMonth = calendarWeekIso(new Date(year-1900, this.month-1, 1)); // getWeek
+		setWeek( String.valueOf(firstWeekInMonth) );
+		
+		monthSelect.setSelectedIndex(this.month-MINMONTH);
+		updateWeekSelect();
+	}
+	
+	public void setWeek(String week) {
+		if(week != null) {
+			try {
+				int w = Integer.parseInt( week );
+				if(w >=1 && w <= 53)
+					this.week = w;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.week = calendarWeekIso( new Date() ); // getWeek
+			console("week: "+this.week);
+		}
+		weekSelect.setSelectedIndex(this.week-firstWeekInMonth);
 	}
 
 	@Override
 	public void setFilter(Map<String, String> filter) {
-		try {
-			Date now = new Date();
-			
-			if(filter.containsKey("year")) {
-				int year = Integer.parseInt( filter.get("year") );
-				if(year >= 2000 && year <= 2100)
-					this.year = year;
-			} else {
-				this.year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(now) );
-			}
-			
-			if(filter.containsKey("month")) {
-				int month = Integer.parseInt( filter.get("month") );
-				if(month >=1 && month <= 12)
-					this.month = month;
-			} else {
-				this.month = Integer.parseInt( DateTimeFormat.getFormat("MM").format(now) );
-			}
-			
-			if(filter.containsKey("week")) {
-				int week = Integer.parseInt( filter.get("week") );
-				if(week >=1 && week <= 53)
-					this.week = week;
-			} else {
-				this.week = getWeek( new Date() );
-			}
-		} catch(NumberFormatException e) {
-			// TODO: show user that param is wrong
-		}
+		setYear(filter.get("year"));
+		setMonth(filter.get("month"));
+		setWeek(filter.get("week"));
 	}
 
 	@Override

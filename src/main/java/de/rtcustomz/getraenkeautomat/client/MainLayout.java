@@ -77,10 +77,10 @@ public class MainLayout extends Composite {
             	
             	final String pageName = tokens.remove("page");
             	if(pages.containsKey(pageName)) {
-            		Page startPage = pages.get(pageName);
+            		Page page = pages.get(pageName);
             		
-            		if(startPage instanceof ChartPage) {
-            			ChartPage chartPage = (ChartPage)startPage;
+            		if(page instanceof ChartPage) {
+            			ChartPage chartPage = (ChartPage)page;
 
         				chartPage.setMode(tokens.remove("mode"));
         				chartPage.setFilter(tokens);
@@ -89,7 +89,7 @@ public class MainLayout extends Composite {
                 		chartPage.drawChart();
                 	}
             		
-                	showPage(startPage);
+                	showPage(page);
             	}
             	else showPage(ErrorPage.getInstance());
             }

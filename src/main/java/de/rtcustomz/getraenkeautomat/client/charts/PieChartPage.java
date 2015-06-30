@@ -274,8 +274,7 @@ public class PieChartPage extends ChartPage {
 	@Override
 	public void setMode(String mode) {
 		if(mode == null) {
-			diffMode = false;
-			return;
+			mode = new String("normal");
 		}
 		
 		if(mode.equals("diff")) {

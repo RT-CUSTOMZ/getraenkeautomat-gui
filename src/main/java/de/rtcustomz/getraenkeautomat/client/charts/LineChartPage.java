@@ -63,6 +63,7 @@ public class LineChartPage extends ChartPage {
     private Mode currentMode = Mode.MONTH;
     
     private final String[] months = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
+	private int lastDayOfMonth = getLastDayOfMonth();
 	
 	public LineChartPage()
 	{
@@ -84,7 +85,7 @@ public class LineChartPage extends ChartPage {
 			monthSelect.addItem(months[i-1], month);
 		}
 		
-		for(int i=MINDAY; i<=getLastDayOfMonth(); i++) {
+		for(int i=MINDAY; i<=lastDayOfMonth ; i++) {
 			final String day = String.valueOf(i);
 			daySelect.addItem(day, day);
 		}
@@ -173,7 +174,7 @@ public class LineChartPage extends ChartPage {
     	switch(currentMode) {
     		case MONTH:
     			fromValue = 1;
-    			toValue = getLastDayOfMonth();
+    			toValue = lastDayOfMonth;
     			break;
     			
     		case DAY:
@@ -349,6 +350,7 @@ public class LineChartPage extends ChartPage {
 	private void addChartData(DataTable dataTable) {
 		int rowCount = toValue-fromValue + 1;
 		
+		// TODO: chagne this for mode day
 		for(int i=0, j=0; i<rowCount; i++) {
 			
 			int time = fromValue + i;
@@ -408,9 +410,7 @@ public class LineChartPage extends ChartPage {
 	@Override
 	public void setMode(String mode) {
 		if(mode == null) {
-			currentMode = Mode.MONTH;
-			daySelect.setVisible(false);
-			return;
+			mode = new String("month");
 		}
 		
 		if(mode.equals("month")) {
@@ -428,7 +428,7 @@ public class LineChartPage extends ChartPage {
 	
 	private void updateDaySelect() {
 		final int itemCount = daySelect.getItemCount();
-		final int maxCount = getLastDayOfMonth();
+		final int maxCount = lastDayOfMonth;
 		
 		if(itemCount > maxCount) {
 			for(int i=maxCount; i<itemCount; i++) {
@@ -469,6 +469,7 @@ public class LineChartPage extends ChartPage {
 		} else {
 			this.month = Integer.parseInt( DateTimeFormat.getFormat("MM").format( new Date()) );
 		}
+		lastDayOfMonth = getLastDayOfMonth();
 		monthSelect.setSelectedIndex(this.month-MINMONTH);
 		updateDaySelect();
 	}
