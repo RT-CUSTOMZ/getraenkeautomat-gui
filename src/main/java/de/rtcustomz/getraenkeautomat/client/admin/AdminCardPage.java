@@ -113,23 +113,43 @@ public class AdminCardPage extends AdminPage {
 
 		@Override
 		protected void doCommit(CardProxy card, String value) {
-			for (UserProxy user : userlist) {
-				String name = getUserDisplayName(user);
-				if (name.equals(value)) {
-					request_card = requestFactory.cardRequest();
-					CardProxy newcard = request_card.edit(card);
-					newcard.setUser(user);
-					request_card.save(newcard).with("user").to(new Receiver<Void>() {
-						@Override
-						public void onSuccess(Void arg0) {
-						}
+			// set user null
+			if (value.equals("-")) {
+				request_card = requestFactory.cardRequest();
+				CardProxy newcard = request_card.edit(card);
+				newcard.setUser(null);
+				request_card.save(newcard).with("user").to(new Receiver<Void>() {
+					@Override
+					public void onSuccess(Void arg0) {
+					}
 
-						@Override
-						public void onFailure(ServerFailure error) {
-							errorFlag = true;
-							errorString = error.getMessage();
-						}
-					});
+					@Override
+					public void onFailure(ServerFailure error) {
+						errorFlag = true;
+						errorString = error.getMessage();
+					}
+				});
+			}
+			// set user
+			else {
+				for (UserProxy user : userlist) {
+					String name = getUserDisplayName(user);
+					if (name.equals(value)) {
+						request_card = requestFactory.cardRequest();
+						CardProxy newcard = request_card.edit(card);
+						newcard.setUser(user);
+						request_card.save(newcard).with("user").to(new Receiver<Void>() {
+							@Override
+							public void onSuccess(Void arg0) {
+							}
+
+							@Override
+							public void onFailure(ServerFailure error) {
+								errorFlag = true;
+								errorString = error.getMessage();
+							}
+						});
+					}
 				}
 			}
 		}
@@ -356,6 +376,27 @@ public class AdminCardPage extends AdminPage {
 				return getUserDisplayName(user);
 			}
 		};
+		userColumn.setSortable(true);
+		sortHandler.setComparator(userColumn, new Comparator<CardProxy>() {
+			@Override
+			public int compare(CardProxy o1, CardProxy o2) {
+				// return o1.getDescription().compareTo(o2.getDescription());
+				// return
+				// getUserDisplayName(o1.getUser()).compareTo(getUserDisplayName(o2.getUser()));
+				UserProxy user1 = o1.getUser();
+				UserProxy user2 = o2.getUser();
+				if (user1 == null) {
+					if (user2 == null) {
+						return 0;
+					}
+					return -1;
+				}
+				if (user2 == null) {
+					return 1;
+				}
+				return Integer.compare(user1.getId(), user2.getId());
+			}
+		});
 		dataGrid.addColumn(userColumn, "User");
 		userColumn.setFieldUpdater(new FieldUpdater<CardProxy, String>() {
 			@Override
@@ -419,7 +460,7 @@ public class AdminCardPage extends AdminPage {
 		if (user != null)
 			return user.getId() + " - " + user.getFirstname().substring(0, 15) + " " + user.getLastname().substring(0, 15);
 		else
-			return "";
+			return "-";
 	}
 
 	private void deleteCard() {
@@ -497,8 +538,8 @@ public class AdminCardPage extends AdminPage {
 		delpanel.add(deleteStatusLabel);
 		delpanel.add(add_ok);
 		delpanel.add(add_cancel);
+		delpanel.setSize("200px", "100px");
 
-		// addpanel.setSize("200px", "80px");
 		delete_dbox.setAutoHideOnHistoryEventsEnabled(true);
 		delete_dbox.setText("Benutzer löschen");
 		delete_dbox.setWidget(delpanel);
