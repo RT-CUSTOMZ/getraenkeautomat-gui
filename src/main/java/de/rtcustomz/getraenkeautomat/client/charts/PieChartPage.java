@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ColumnType;
@@ -38,8 +41,8 @@ public class PieChartPage extends ChartPage {
     private Map<String, Long> historyMonthBefore;
     private List<SlotProxy> slots;
     
-    private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
-    private int month = Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) );
+    private int year;
+    private int month;
     
     private boolean diffMode = false;
 	
@@ -47,12 +50,80 @@ public class PieChartPage extends ChartPage {
 	{
 		requestFactory.initialize(eventBus);
 		
+		FlowPanel selectBoxes = new FlowPanel();
+		selectBoxes.setStyleName("selectboxes");
+		
+		modeSelect.addItem("Monatsansicht", "normal");
+		modeSelect.addItem("Unterschied zum Vormonat", "diff");
+		
+		for(int i=MINYEAR; i<=MAXYEAR; i++) {
+			final String year = String.valueOf(i);
+			yearSelect.addItem(year, year);
+		}
+		
+		for(int i=MINMONTH; i<=MAXMONTH; i++) {
+			final String month = String.valueOf(i);
+			monthSelect.addItem(month, month);
+		}
+		
+		modeSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String mode = modeSelect.getSelectedValue();
+				
+				changeHistory("mode", mode);
+				
+				setMode(mode);
+				
+				initData();
+				drawChart();
+			}
+		});
+		
+		yearSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String year = yearSelect.getSelectedValue();
+				
+				changeHistory("year", year);
+				
+				setYear(year);
+				
+				initData();
+				drawChart();
+			}
+		});
+
+		
+		monthSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String month = monthSelect.getSelectedValue();
+				
+				changeHistory("month", month);
+				
+				setMonth(month);
+				
+				initData();
+				drawChart();
+			}
+		});
+		
+		selectBoxes.add(modeSelect);
+		selectBoxes.add(yearSelect);
+		selectBoxes.add(monthSelect);
+		
+		page.add(selectBoxes);
+		
 		Window.addResizeHandler(this);
         
         initWidget(page);
 	}
-	
-    public static PieChartPage getInstance(){
+
+	public static PieChartPage getInstance(){
         if(null == _instance) {
             _instance = new PieChartPage();
         }
@@ -202,29 +273,53 @@ public class PieChartPage extends ChartPage {
 
 	@Override
 	public void setMode(String mode) {
-		if(mode.equals("diff"))
-			diffMode = true;
-		else
+		if(mode == null) {
 			diffMode = false;
+			return;
+		}
+		
+		if(mode.equals("diff")) {
+			diffMode = true;
+			modeSelect.setSelectedIndex(1);
+		} else {
+			diffMode = false;
+			modeSelect.setSelectedIndex(0);
+		}
+	}
+	
+	public void setYear(String year) {
+		if(year != null) {
+			try {
+				int y = Integer.parseInt( year );
+				this.year = y;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format( new Date()) );
+		}
+		yearSelect.setSelectedIndex(this.year-MINYEAR);
+	}
+	
+	public void setMonth(String month) {
+		if(month != null) {
+			try {
+				int m = Integer.parseInt( month );
+				if(m >=1 && m <= 12)
+					this.month = m;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.month = Integer.parseInt( DateTimeFormat.getFormat("MM").format( new Date()) );
+		}
+		monthSelect.setSelectedIndex(this.month-MINMONTH);
 	}
 
 	@Override
 	public void setFilter(Map<String, String> filter) {
-		try {
-			if(filter.containsKey("year")) {
-				int year = Integer.parseInt( filter.get("year") );
-				if(year >= 2000 && year <= 2100)
-					this.year = year;
-			}
-			
-			if(filter.containsKey("month")) {
-				int month = Integer.parseInt( filter.get("month") );
-				if(month >=1 && month <= 12)
-					this.month = month;
-			}
-		} catch(NumberFormatException e) {
-			// TODO: show user that param is wrong
-		}
+		setYear(filter.get("year"));
+		setMonth(filter.get("month"));
 	}
 
 	@Override

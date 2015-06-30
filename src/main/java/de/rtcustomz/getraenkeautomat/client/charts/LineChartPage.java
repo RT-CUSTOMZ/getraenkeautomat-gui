@@ -6,11 +6,15 @@ import java.util.List;
 import java.util.Map;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ChartType;
@@ -42,6 +46,8 @@ public class LineChartPage extends ChartPage {
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
 	
+	private ListBox daySelect = new ListBox();
+	
 	private Dashboard dashboard;
 	private NumberRangeFilter numberRangeFilter;
 	private ChartWrapper<LineChartOptions> lineChart;
@@ -49,20 +55,108 @@ public class LineChartPage extends ChartPage {
     private List<SlotProxy> slots;
     
 
-    private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
-    private int month = Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) );
-    private int day = Integer.parseInt( DateTimeFormat.getFormat("d").format(new Date()) );
+    private int year;
+    private int month;
+    private int day;
     private int toValue;
     private int fromValue;
     private Mode currentMode = Mode.MONTH;
     
-    // TODO: set days and months as x-axis labels of chart
-//  private String[] days = {"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"};
-//  private String[] months = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
+    private final String[] months = {"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"};
 	
 	public LineChartPage()
 	{
 		requestFactory.initialize(eventBus);
+		
+		FlowPanel selectBoxes = new FlowPanel();
+		selectBoxes.setStyleName("selectboxes");
+		
+		modeSelect.addItem("Monatsansicht", "month");
+		modeSelect.addItem("Tagesansicht", "day");
+		
+		for(int i=MINYEAR; i<=MAXYEAR; i++) {
+			final String year = String.valueOf(i);
+			yearSelect.addItem(year, year);
+		}
+		
+		for(int i=MINMONTH; i<=MAXMONTH; i++) {
+			final String month = String.valueOf(i);
+			monthSelect.addItem(months[i-1], month);
+		}
+		
+		for(int i=MINDAY; i<=getLastDayOfMonth(); i++) {
+			final String day = String.valueOf(i);
+			daySelect.addItem(day, day);
+		}
+		
+		modeSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String mode = modeSelect.getSelectedValue();
+				
+				changeHistory("mode", mode);
+				
+				setMode(mode);
+				
+				initData();
+				drawChart();
+			}
+		});
+		
+		yearSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String year = yearSelect.getSelectedValue();
+				
+				changeHistory("year", year);
+				
+				setYear(year);
+				
+				initData();
+				drawChart();
+			}
+		});
+		
+		monthSelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String month = monthSelect.getSelectedValue();
+				
+				changeHistory("month", month);
+				
+				setMonth(month);
+				
+				initData();
+				drawChart();
+			}
+		});
+
+		daySelect.addChangeHandler(new ChangeHandler() {
+			
+			@Override
+			public void onChange(ChangeEvent event) {
+				final String day = daySelect.getSelectedValue();
+				
+				changeHistory("day", day);
+				
+				setDay(day);
+				
+				initData();
+				drawChart();
+			}
+		});
+		daySelect.setVisible(false);
+		
+		
+		selectBoxes.add(modeSelect);
+		selectBoxes.add(yearSelect);
+		selectBoxes.add(monthSelect);
+		selectBoxes.add(daySelect);
+		
+		page.add(selectBoxes);
 		
         // draw new PieChart if user resizes the browser window
         Window.addResizeHandler(this);
@@ -313,32 +407,92 @@ public class LineChartPage extends ChartPage {
 
 	@Override
 	public void setMode(String mode) {
+		if(mode == null) {
+			currentMode = Mode.MONTH;
+			daySelect.setVisible(false);
+			return;
+		}
+		
 		if(mode.equals("month")) {
 			currentMode = Mode.MONTH;
+			
+			daySelect.setVisible(false);
 		} else if(mode.equals("day")) {
 			currentMode = Mode.DAY;
+			
+//			updateDaySelect();
+			daySelect.setVisible(true);
 		}
+		modeSelect.setSelectedIndex(currentMode.ordinal());
+	}
+	
+	private void updateDaySelect() {
+		final int itemCount = daySelect.getItemCount();
+		final int maxCount = getLastDayOfMonth();
+		
+		if(itemCount > maxCount) {
+			for(int i=maxCount; i<itemCount; i++) {
+				// remove all days that are bigger than last day of month
+				daySelect.removeItem(maxCount);
+			}
+		} else if(itemCount < maxCount) {
+			for(int i=itemCount+1; i<=maxCount; i++) {
+				final String day = String.valueOf(i);
+				daySelect.addItem(day, day);
+			}
+		}
+	}
+
+	public void setYear(String year) {
+		if(year != null) {
+			try {
+				int y = Integer.parseInt( year );
+				this.year = y;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format( new Date()) );
+		}
+		yearSelect.setSelectedIndex(this.year-MINYEAR);
+	}
+	
+	public void setMonth(String month) {
+		if(month != null) {
+			try {
+				int m = Integer.parseInt( month );
+				if(m >=1 && m <= 12)
+					this.month = m;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.month = Integer.parseInt( DateTimeFormat.getFormat("MM").format( new Date()) );
+		}
+		monthSelect.setSelectedIndex(this.month-MINMONTH);
+		updateDaySelect();
+	}
+	
+	public void setDay(String day) {
+		if(day != null) {
+			try {
+				int d = Integer.parseInt( day );
+				if(d >=0 && d <= 31)
+					this.day = d;
+			} catch (NumberFormatException e) {
+				// TODO: show user info that parameter isn't correct
+			}
+		} else {
+			this.day = Integer.parseInt( DateTimeFormat.getFormat("d").format( new Date()) );
+		}
+		daySelect.setSelectedIndex(this.day-MINDAY);
 	}
 
 	@Override
 	public void setFilter(Map<String, String> filter) {
-		if(filter.containsKey("year")) {
-			int year = Integer.parseInt( filter.get("year") );
-			if(year >= 2000 && year <= 2100)
-				this.year = year;
-		}
-		
-		if(filter.containsKey("month")) {
-			int month = Integer.parseInt( filter.get("month") );
-			if(month >=1 && month <= 12)
-				this.month = month;
-		}
-		
-		if(filter.containsKey("day")) {
-			int day = Integer.parseInt( filter.get("day") );
-			if(day >=0 && day <= 31)
-				this.day = day;
-		}
+		setYear(filter.get("year"));
+		setMonth(filter.get("month"));
+		setDay(filter.get("day"));
 	}
 
 	@Override

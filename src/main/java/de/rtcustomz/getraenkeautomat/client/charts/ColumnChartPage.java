@@ -11,6 +11,7 @@ import com.google.gwt.event.shared.EventBus;
 import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.googlecode.gwt.charts.client.ChartType;
@@ -42,15 +43,17 @@ public class ColumnChartPage extends ChartPage {
 	private final ModelRequestFactory requestFactory = GWT.create(ModelRequestFactory.class);
 	private final EventBus eventBus = new SimpleEventBus();
 	
+	private ListBox weekSelect = new ListBox();
+	
 	private Dashboard dashboard;
 	private NumberRangeFilter numberRangeFilter;
 	private ChartWrapper<ColumnChartOptions> columnChart;
     private List<ColumnChartDataProxy> history;
     private List<SlotProxy> slots;
 
-    private int year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(new Date()) );
-    private int month = Integer.parseInt( DateTimeFormat.getFormat("MM").format(new Date()) );
-    private int week = setDefaultWeek();
+    private int year;
+    private int month;
+    private int week = getWeek( new Date() );
     private int toValue;
     private int fromValue;
     private Mode currentMode = Mode.YEAR;
@@ -70,8 +73,7 @@ public class ColumnChartPage extends ChartPage {
 	}
 	
 	// TODO: use library that can handle Dates much better
-    private int setDefaultWeek() {
-    	Date date = new Date();
+    private int getWeek(Date date) {
     	Date yearStart = new Date(date.getYear(), 0, 0);
 
     	int week = (int) ( (date.getTime() - yearStart.getTime()) / (7 * 24 * 60 * 60 * 1000) );
@@ -330,6 +332,11 @@ public class ColumnChartPage extends ChartPage {
 
 	@Override
 	public void setMode(String mode) {
+		if(mode == null) {
+			currentMode = Mode.YEAR;
+			return;
+		}
+			
 		if(mode.equals("overall")) {
 			currentMode = Mode.OVERALL;
 		} else if(mode.equals("year")) {
@@ -342,22 +349,30 @@ public class ColumnChartPage extends ChartPage {
 	@Override
 	public void setFilter(Map<String, String> filter) {
 		try {
+			Date now = new Date();
+			
 			if(filter.containsKey("year")) {
 				int year = Integer.parseInt( filter.get("year") );
 				if(year >= 2000 && year <= 2100)
 					this.year = year;
+			} else {
+				this.year = Integer.parseInt( DateTimeFormat.getFormat("yyyy").format(now) );
 			}
 			
 			if(filter.containsKey("month")) {
 				int month = Integer.parseInt( filter.get("month") );
 				if(month >=1 && month <= 12)
 					this.month = month;
+			} else {
+				this.month = Integer.parseInt( DateTimeFormat.getFormat("MM").format(now) );
 			}
 			
 			if(filter.containsKey("week")) {
 				int week = Integer.parseInt( filter.get("week") );
 				if(week >=1 && week <= 53)
 					this.week = week;
+			} else {
+				this.week = getWeek( new Date() );
 			}
 		} catch(NumberFormatException e) {
 			// TODO: show user that param is wrong

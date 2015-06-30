@@ -59,7 +59,7 @@ public class MainLayout extends Composite {
 	private void initHistory(String firstPage) {
 		String initToken = History.getToken();
 	    if (initToken.length() == 0) {
-	      History.newItem("page="+firstPage);
+	      History.replaceItem("page="+firstPage);
 	    }
 
         History.addValueChangeHandler(new ValueChangeHandler<String>() {
@@ -82,15 +82,8 @@ public class MainLayout extends Composite {
             		if(startPage instanceof ChartPage) {
             			ChartPage chartPage = (ChartPage)startPage;
 
-            			// set mode of chart if given by history
-            			if(tokens.containsKey("mode")) {
-            				chartPage.setMode(tokens.remove("mode"));
-            			}
-            			
-            			// if history contains filter
-            			if(!tokens.isEmpty()) {
-            				chartPage.setFilter(tokens);
-            			}
+        				chartPage.setMode(tokens.remove("mode"));
+        				chartPage.setFilter(tokens);
             			
             			chartPage.initData();
                 		chartPage.drawChart();
