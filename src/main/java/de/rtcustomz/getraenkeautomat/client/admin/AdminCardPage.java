@@ -339,7 +339,11 @@ public class AdminCardPage extends AdminPage {
 		Column<CardProxy, String> descriptionColumn = new Column<CardProxy, String>(new EditTextCell()) {
 			@Override
 			public String getValue(CardProxy object) {
-				return object.getDescription();
+				String description = object.getDescription();
+				if (description != null)
+					return description;
+				else
+					return "";
 			}
 		};
 		descriptionColumn.setSortable(true);
