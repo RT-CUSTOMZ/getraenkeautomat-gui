@@ -703,10 +703,10 @@ CREATE TABLE `users` (
 -- Records of users
 -- ----------------------------
 INSERT INTO `users` VALUES ('1', 'Demo', 'User', 'test', '1');
-INSERT INTO `users` VALUES ('2', 'Dennis', 'Ahrens', 'admin', '1');
-INSERT INTO `users` VALUES ('3', 'Fabian', 'Kalkofen', 'ohne Rechte', '4');
+INSERT INTO `users` VALUES ('2', 'Dennis', 'A', 'admin', '1');
+INSERT INTO `users` VALUES ('3', 'Fabian', 'K', 'ohne Rechte', '4');
 INSERT INTO `users` VALUES ('4', 'LangerVorname', 'LangerNachname', 'LangerSpitzname', '1');
-INSERT INTO `users` VALUES ('5', 'Norbert', 'Dirks', 'norbäääääärt', '0');
+INSERT INTO `users` VALUES ('5', 'Norbert', 'D', 'wo', '0');
 INSERT INTO `users` VALUES ('6', 'Jason', 'Cotton', 'elit. Curabitur', '2');
 INSERT INTO `users` VALUES ('7', 'Trevor', 'Clemons', 'luctus', '2');
 INSERT INTO `users` VALUES ('8', 'Honorato', 'Hall', 'cursus a,', '3');

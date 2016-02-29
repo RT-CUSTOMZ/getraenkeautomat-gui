@@ -107,5 +107,5 @@ CREATE TABLE `users` (
 -- Records of users
 -- ----------------------------
 INSERT INTO `users` VALUES ('1', 'Demo', 'User', 'test', '1');
-INSERT INTO `users` VALUES ('2', 'Dennis', 'Ahrens', 'admin', '1');
-INSERT INTO `users` VALUES ('3', 'Fabian', 'Kalkofen', null, '1');
+INSERT INTO `users` VALUES ('2', 'Dennis', 'A', 'admin', '1');
+INSERT INTO `users` VALUES ('3', 'Fabian', 'K', null, '1');
