@@ -24,7 +24,7 @@ public abstract class ChartPage extends Composite implements Page, ResizeHandler
 	
 	// TODO: get these from history
 	public static final int MINYEAR = 2013;
-	public static final int MAXYEAR = 2015;
+	public static final int MAXYEAR = 2016;
 	
 	// TODO: get these from history
 	public static final int MINMONTH = 1;
