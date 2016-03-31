@@ -3,9 +3,9 @@ package de.rtcustomz.getraenkeautomat.server;
 import java.net.URI;
 
 import javax.inject.Singleton;
+import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -27,7 +27,7 @@ public class HistoryResource {
 
 	@POST
 	@Path("/create")
-	public Response createHistoryEntry(@QueryParam("card_id") String card_id, @QueryParam("slot") Integer slot_id) {
+	public Response createHistoryEntry(@FormParam("card_id") String card_id, @FormParam("slot") Integer slot_id) {
 		Card card = CardDAO.findById(card_id);
 		Slot slot = SlotDAO.findById(slot_id);
 		
