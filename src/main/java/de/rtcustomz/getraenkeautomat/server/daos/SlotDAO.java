@@ -50,7 +50,7 @@ public class SlotDAO {
 		EntityManager em = DatabaseController.createEntityManager();
 		try {
 			em.getTransaction().begin();
-			em.persist(slot);
+			em.merge(slot);
 			em.flush();
 			em.getTransaction().commit();
 		} catch (Exception e) {
