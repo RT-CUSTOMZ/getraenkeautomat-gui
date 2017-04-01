@@ -85,7 +85,7 @@ public class AdminCardPage extends AdminPage {
 
 		@Override
 		protected void doCommit(CardProxy card, String value) {
-			request_card = requestFactory.cardRequest();
+			//request_card = requestFactory.cardRequest();
 			CardProxy newcard = request_card.edit(card);
 			newcard.setDescription(value);
 			request_card.save(newcard).to(new Receiver<Void>() {
@@ -115,7 +115,7 @@ public class AdminCardPage extends AdminPage {
 		protected void doCommit(CardProxy card, String value) {
 			// set user null
 			if (value.equals("-")) {
-				request_card = requestFactory.cardRequest();
+				//request_card = requestFactory.cardRequest();
 				CardProxy newcard = request_card.edit(card);
 				newcard.setUser(null);
 				request_card.save(newcard).with("user").to(new Receiver<Void>() {
@@ -135,7 +135,7 @@ public class AdminCardPage extends AdminPage {
 				for (UserProxy user : userlist) {
 					String name = getUserDisplayName(user);
 					if (name.equals(value)) {
-						request_card = requestFactory.cardRequest();
+						//request_card = requestFactory.cardRequest();
 						CardProxy newcard = request_card.edit(card);
 						newcard.setUser(user);
 						request_card.save(newcard).with("user").to(new Receiver<Void>() {
@@ -238,7 +238,7 @@ public class AdminCardPage extends AdminPage {
 					pendingChange.commit();
 				}
 				pendingChanges.clear();
-				if (request_card.isChanged())
+				if (request_card.isChanged()) {
 					request_card.fire(new Receiver<Void>() {
 						@Override
 						public void onSuccess(Void arg0) {
@@ -246,18 +246,24 @@ public class AdminCardPage extends AdminPage {
 								saveStatusLabel.setHTML("<p>Datenbankfehler: " + errorString + "</p>");
 							else {
 								saveStatusLabel.setHTML("<p>Speichern erfolgreich!</p>");
-								save.removeFromParent();
 							}
+							save.removeFromParent();
 							save_dbox.center();
 						}
 
 						@Override
 						public void onFailure(ServerFailure error) {
 							saveStatusLabel.setHTML("<p>Serverfehler: " + error.getMessage() + "</p>");
+							save.removeFromParent();
 							save_dbox.center();
 						}
 					});
-
+				} else {
+					saveStatusLabel.setHTML("<p>Keine Änderung erkannt</p>");
+					save.removeFromParent();
+					save_dbox.center();
+				}
+				
 				// Push the changes to the views.
 				dataProvider.refresh();
 			}

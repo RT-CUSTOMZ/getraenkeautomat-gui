@@ -78,7 +78,7 @@ public class AdminSlotPage extends AdminPage {
 
 		@Override
 		protected void doCommit(SlotProxy slot, String value) {
-			request_slot = requestFactory.slotRequest();
+			//request_slot = requestFactory.slotRequest();
 			SlotProxy newslot = request_slot.edit(slot);
 			newslot.setDrink(value);
 			request_slot.save(newslot).to(new Receiver<Void>() {
@@ -174,7 +174,7 @@ public class AdminSlotPage extends AdminPage {
 					pendingChange.commit();
 				}
 				pendingChanges.clear();
-				if (request_slot.isChanged())
+				if (request_slot.isChanged()) {
 					request_slot.fire(new Receiver<Void>() {
 						@Override
 						public void onSuccess(Void arg0) {
@@ -182,18 +182,24 @@ public class AdminSlotPage extends AdminPage {
 								saveStatusLabel.setHTML("<p>Datenbankfehler: " + errorString + "</p>");
 							else {
 								saveStatusLabel.setHTML("<p>Speichern erfolgreich!</p>");
-								save.removeFromParent();
 							}
+							save.removeFromParent();
 							dbox.center();
 						}
 
 						@Override
 						public void onFailure(ServerFailure error) {
 							saveStatusLabel.setHTML("<p>Serverfehler: " + error.getMessage() + "</p>");
+							save.removeFromParent();
 							dbox.center();
 						}
 					});
-
+				} else {
+					saveStatusLabel.setHTML("<p>Keine Änderung erkannt</p>");
+					save.removeFromParent();
+					dbox.center();
+				}
+				
 				// Push the changes to the views.
 				dataProvider.refresh();
 			}

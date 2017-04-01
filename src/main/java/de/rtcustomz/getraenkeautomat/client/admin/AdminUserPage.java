@@ -83,7 +83,7 @@ public class AdminUserPage extends AdminPage {
 
 		@Override
 		protected void doCommit(UserProxy user, String value) {
-			request_user = requestFactory.userRequest();
+			//request_user = requestFactory.userRequest();
 			UserProxy newuser = request_user.edit(user);
 			newuser.setFirstname(value);
 			request_user.save(newuser).to(new Receiver<Void>() {
@@ -111,7 +111,7 @@ public class AdminUserPage extends AdminPage {
 
 		@Override
 		protected void doCommit(UserProxy user, String value) {
-			request_user = requestFactory.userRequest();
+			//request_user = requestFactory.userRequest();
 			UserProxy newuser = request_user.edit(user);
 			newuser.setLastname(value);
 			request_user.save(newuser).to(new Receiver<Void>() {
@@ -139,7 +139,7 @@ public class AdminUserPage extends AdminPage {
 
 		@Override
 		protected void doCommit(UserProxy user, String value) {
-			request_user = requestFactory.userRequest();
+			//request_user = requestFactory.userRequest();
 			UserProxy newuser = request_user.edit(user);
 			newuser.setNickname(value);
 			request_user.save(newuser).to(new Receiver<Void>() {
@@ -242,7 +242,7 @@ public class AdminUserPage extends AdminPage {
 					pendingChange.commit();
 				}
 				pendingChanges.clear();
-				if (request_user.isChanged())
+				if (request_user.isChanged()) {
 					request_user.fire(new Receiver<Void>() {
 						@Override
 						public void onSuccess(Void arg0) {
@@ -250,18 +250,24 @@ public class AdminUserPage extends AdminPage {
 								saveStatusLabel.setHTML("<p>Datenbankfehler: " + errorString + "</p>");
 							else {
 								saveStatusLabel.setHTML("<p>Speichern erfolgreich!</p>");
-								save.removeFromParent();
 							}
+							save.removeFromParent();
 							save_dbox.center();
 						}
 
 						@Override
 						public void onFailure(ServerFailure error) {
 							saveStatusLabel.setHTML("<p>Serverfehler: " + error.getMessage() + "</p>");
+							save.removeFromParent();
 							save_dbox.center();
 						}
 					});
-
+				} else {
+					saveStatusLabel.setHTML("<p>Keine Änderung erkannt</p>");
+					save.removeFromParent();
+					save_dbox.center();
+				}
+				
 				// Push the changes to the views.
 				dataProvider.refresh();
 			}
