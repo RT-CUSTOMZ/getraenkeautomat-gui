@@ -181,6 +181,8 @@ public class AdminCardPage extends AdminPage {
 	final Button delete = new Button("Löschmodus");
 	final static DialogBox delete_dbox = new DialogBox(true);
 	final static HTML deleteStatusLabel = new HTML();
+	
+	final Button mark = new Button("Karten ohne User markieren");
 
 	static boolean errorFlag = false;
 	static String errorString;
@@ -275,8 +277,33 @@ public class AdminCardPage extends AdminPage {
 				if (dataGrid.getColumnCount() < 5) {
 					setDeleteColumn(true);
 					delete.setText("Auswahl löschen");
+					mark.setText("Karten ohne User markieren");
+					mark.setVisible(true);
 				} else {
 					delete_dbox.center();
+				}
+			}
+		});
+		
+		mark.setVisible(false);
+		mark.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				if (dataGrid.getColumnCount() < 5) {
+					//Ignore clicks without delete mode
+				} else {
+					if(mark.getText()=="Karten ohne User markieren"){
+						mark.setText("Markierung zurücksetzen");
+						for (final CardProxy card : dataProvider.getList()) {
+							if(card.getUser() == null){
+								selectionModel.setSelected(card, true);
+							}
+						}
+					}else{
+						mark.setText("Karten ohne User markieren");
+						for (final CardProxy card : dataProvider.getList()) {
+							selectionModel.setSelected(card, false);
+						}
+					}
 				}
 			}
 		});
@@ -301,6 +328,7 @@ public class AdminCardPage extends AdminPage {
 		page.add(dataGrid);
 		page.add(pager);
 		page.add(delete);
+		page.add(mark);
 	}
 
 	/**
@@ -499,6 +527,8 @@ public class AdminCardPage extends AdminPage {
 				else {
 					delete.setText("Löschmodus");
 					setDeleteColumn(false);
+					mark.setText("Karten ohne User markieren");
+					mark.setVisible(false);
 					delete_dbox.hide();
 				}
 			}
