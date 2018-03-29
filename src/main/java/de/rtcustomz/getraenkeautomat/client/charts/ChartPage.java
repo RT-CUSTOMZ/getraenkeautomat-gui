@@ -2,6 +2,7 @@ package de.rtcustomz.getraenkeautomat.client.charts;
 
 import java.util.Map;
 
+import com.google.gwt.core.client.JsDate;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.Composite;
@@ -23,8 +24,8 @@ public abstract class ChartPage extends Composite implements Page, ResizeHandler
 	public ListBox yearSelect = new ListBox();
 	
 	// TODO: get these from history
-	public static final int MINYEAR = 2013;
-	public static final int MAXYEAR = 2018;
+	public static final int MINYEAR = 2015;
+	public static final int MAXYEAR = JsDate.create().getFullYear();
 	
 	// TODO: get these from history
 	public static final int MINMONTH = 1;
